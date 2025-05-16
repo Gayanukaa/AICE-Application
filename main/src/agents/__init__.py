@@ -99,7 +99,7 @@ def create_college_exploration_agents(
         ),
         allow_delegation=False,
         llm=get_llm(essay_refinement_model, essay_refinement_temperature),
-        #tools=[],
+        # tools=[],
     )
 
     # -- Features 2 & 3: Program Analysis Agents --
@@ -116,7 +116,7 @@ def create_college_exploration_agents(
         ),
         allow_delegation=False,
         llm=get_llm(uni_info_scraper_model, uni_info_scraper_temperature),
-        #tools=[SearchTool(), fetch_admissions_data],
+        # tools=[SearchTool(), fetch_admissions_data],
     )
 
     uni_info_processor_agent = Agent(
@@ -131,7 +131,7 @@ def create_college_exploration_agents(
         ),
         allow_delegation=False,
         llm=get_llm(uni_info_processor_model, uni_info_processor_temperature),
-        #tools=[process_admissions_data],
+        # tools=[process_admissions_data],
     )
 
     program_comparison_agent = Agent(
@@ -147,7 +147,7 @@ def create_college_exploration_agents(
         ),
         allow_delegation=False,
         llm=get_llm(program_comparison_model, program_comparison_temperature),
-        #tools=[compare_programs],
+        # tools=[compare_programs],
     )
 
     return {

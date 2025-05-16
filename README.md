@@ -2,16 +2,15 @@
 
 AICE is a multi-agent system to help students explore and apply to universities worldwide. It provides:
 
-- **AI-Powered Essay Writing Assistant**  
-  - Structure & outline uploaded personal statements and supplemental essays  
-  - Grammar, tone & clarity improvements  
-  - Real-time feedback aligned with university expectations  
+- **AI-Powered Essay Writing Assistant**
+  - Structure & outline uploaded personal statements and supplemental essays
+  - Grammar, tone & clarity improvements
+  - Real-time feedback aligned with university expectations
 
-- **University Info Retrieval & Program Comparison**  
-  - Scrape admissions requirements, deadlines, fees & scholarships  
-  - Normalize into a consistent JSON schema  
-  - Side-by-side program comparisons on cost, ranking, curriculum & funding  
-
+- **University Info Retrieval & Program Comparison**
+  - Scrape admissions requirements, deadlines, fees & scholarships
+  - Normalize into a consistent JSON schema
+  - Side-by-side program comparisons on cost, ranking, curriculum & funding
 
 ## Getting Started
 
@@ -22,7 +21,7 @@ AICE is a multi-agent system to help students explore and apply to universities 
 
 ### Backend Setup
 
-1. **Clone the repo**  
+1. **Clone the repo**
 
    ```bash
    git clone https://github.com/your-org/aice.git
@@ -71,8 +70,8 @@ AICE is a multi-agent system to help students explore and apply to universities 
 
    Navigate to `http://localhost:8501` and use the sidebar to switch between:
 
-   * *Essay Writing*
-   * *Program Analysis*
+   - *Essay Writing*
+   - *Program Analysis*
 
 ## 📄 License
 
