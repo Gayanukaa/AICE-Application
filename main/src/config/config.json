@@ -1,0 +1,22 @@
+{
+  "essay_brainstorm_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "essay_refinement_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "uni_info_scraper_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "uni_info_processor_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "program_comparison_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  }
+}
