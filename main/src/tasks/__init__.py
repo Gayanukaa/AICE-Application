@@ -39,37 +39,38 @@ class ProgramComparisonReport(BaseModel):
 
 def create_college_exploration_tasks(
     session_id: str,
-    student_profile: str,
+    essay_text: str,
     target_university: str,
     style_guidelines: str,
     university_list: List[str],
     comparison_criteria: List[str],
     agents: Dict[str, Agent],
 ) -> List[Task]:
-    """Build the list of Tasks for AICE flows: essay writing and program analysis."""
-
+    """Build tasks for essay writing and program analysis flows."""
     def _path(template: str) -> str:
         return template.format(session_id=session_id)
 
     tasks: List[Task] = []
     ctx: Dict[str, Task] = {}
 
-    # Task 1: Brainstorm essay topics & outline
+    # --- Feature 1: Essay Writing Flow ---
+
+    # Task 1: Structure and outline the uploaded essay
     if "essay_brainstorm_agent" in agents:
         t1 = Task(
             description=f"""
-            Generate personalized essay topic ideas and a high-level outline for:
-            - Student Profile: {student_profile}
-            - Target University: {target_university}
+            Structure and outline the uploaded essay text:
+
+            {essay_text}
 
             Instructions:
-            1. Brainstorm 5–10 essay topics.
-            2. Create a structured outline covering introduction, body points, and conclusion.
+            1. Identify introduction, key body points, and conclusion.
+            2. Organize into a clear outline aligned with {target_university} expectations.
             """,
-            expected_output="""
-            A JSON object containing:
-            1. A list of essay topics (strings).
-            2. An outline mapping each section to bullet points.
+                        expected_output="""
+            A JSON object with:
+            - topics: list of section headings or key themes.
+            - outline: mapping of each section to bullet-point details.
             """,
             agent=agents["essay_brainstorm_agent"],
             output_file=_path(ESSAY_OUTLINE_FILE),
@@ -78,21 +79,26 @@ def create_college_exploration_tasks(
         tasks.append(t1)
         ctx["essay_brainstorm"] = t1
 
-    # Task 2: Refine outline into polished draft
+    # Task 2: Refine the uploaded essay using the outline and style guidelines
     if "essay_refinement_agent" in agents and "essay_brainstorm" in ctx:
         t2 = Task(
             description=f"""
-            Refine the essay based on the outline from the previous task:
-            - Style Guidelines: {style_guidelines}
+            Refine the uploaded essay text using the outline from the previous task and style guidelines:
+
+            Essay Text:
+            {essay_text}
+
+            Outline:
+            {{{{steps.essay_brainstorm.outline}}}}
 
             Apply:
-            1. Grammar and spelling correction.
+            1. Grammar, spelling, and punctuation correction.
             2. Tone and clarity enhancement.
-            3. Alignment with specified style guidelines.
+            3. Alignment with university-specific expectations using {style_guidelines}.
             """,
             expected_output="""
-            A JSON object containing:
-            1. The refined essay text as a single string.
+            A JSON object with:
+            - refined_draft: the polished essay text.
             """,
             agent=agents["essay_refinement_agent"],
             output_file=_path(REFINED_ESSAY_FILE),
@@ -101,6 +107,8 @@ def create_college_exploration_tasks(
         )
         tasks.append(t2)
         ctx["essay_refinement"] = t2
+
+    # --- Features 2 & 3: Program Analysis Flow ---
 
     # Task 3: Scrape raw admissions data
     if "uni_info_scraper_agent" in agents:
@@ -115,9 +123,7 @@ def create_college_exploration_tasks(
             - Fees
             - Scholarships
             """,
-            expected_output="""
-            Raw JSON or HTML data for each university.
-            """,
+            expected_output="Raw JSON or HTML data for each university.",
             agent=agents["uni_info_scraper_agent"],
             output_file=_path(RAW_ADMISSIONS_DATA_FILE),
             output_json=RawAdmissionsData,
@@ -132,9 +138,7 @@ def create_college_exploration_tasks(
             Transform the raw admissions data from the previous task into a clean JSON schema
             with fields: requirements, deadlines, fees, scholarships.
             """,
-            expected_output="""
-            Clean, structured admissions information as JSON.
-            """,
+            expected_output="Clean, structured admissions information as JSON.",
             agent=agents["uni_info_processor_agent"],
             output_file=_path(STRUCTURED_ADMISSIONS_DATA_FILE),
             output_json=StructuredAdmissionsData,
@@ -156,10 +160,7 @@ def create_college_exploration_tasks(
             • Curriculum structure
             • Funding opportunities
             """,
-            expected_output="""
-            A comparison report (JSON or markdown) summarizing key differences
-            and recommendations.
-            """,
+            expected_output="A comparison report summarizing key differences and recommendations.",
             agent=agents["program_comparison_agent"],
             output_file=_path(PROGRAM_COMPARISON_REPORT_FILE),
             output_json=ProgramComparisonReport,

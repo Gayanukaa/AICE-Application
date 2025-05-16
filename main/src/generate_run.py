@@ -1,5 +1,3 @@
-"""This module is responsible for driving the AICE (AI College Exploration) workflows."""
-
 import json
 from typing import Dict, Any
 
@@ -16,7 +14,7 @@ def generate_college_exploration_background(
 ) -> None:
     """
     Dispatch the appropriate AICE flow based on session_data['flow_type']:
-      - "essay"           → Essay Writing flow
+      - "essay"            → Essay Writing flow
       - "program_analysis" → Program Analysis flow (Features 2 & 3)
     Persist intermediate and final outputs into our JSON datastore.
     """
@@ -30,10 +28,10 @@ def generate_college_exploration_background(
             all_db["essay_writing_sessions"][session_id] = sess
             db.update_db(all_db)
 
-            # kickoff Crew
+            # kickoff Essay Writing Crew, now using essay_text
             result, tasks = create_essay_writing_crew(
                 session_id=session_id,
-                student_profile=session_data["student_profile"],
+                essay_text=session_data["essay_text"],             # ← changed
                 target_university=session_data["target_university"],
                 style_guidelines=session_data["style_guidelines"],
             )
@@ -43,8 +41,8 @@ def generate_college_exploration_background(
             refined = None
             for task in tasks:
                 desc = task.description.strip().lower()
-                raw = task.output.raw
-                if "brainstorm" in desc:
+                raw  = task.output.raw
+                if "structure and outline" in desc:
                     outline = json.loads(raw) if _is_json(raw) else raw
                 elif "refine" in desc:
                     refined = json.loads(raw) if _is_json(raw) else raw
@@ -53,28 +51,26 @@ def generate_college_exploration_background(
             db.save_essay_results(session_id, outline, refined)
 
         elif flow == "program_analysis":
-            # mark in-progress
+            # unchanged…
             sess = db.get_program_analysis_session(session_id)
             sess["status"] = "in_progress"
             all_db = db.read_db()
             all_db["program_analysis_sessions"][session_id] = sess
             db.update_db(all_db)
 
-            # kickoff Crew
             result, tasks = create_program_analysis_crew(
                 session_id=session_id,
                 university_list=session_data["university_list"],
                 comparison_criteria=session_data["comparison_criteria"],
             )
 
-            # collect outputs in order
-            raw_data = None
+            raw_data  = None
             structured = None
-            report = None
+            report     = None
             for task in tasks:
                 desc = task.description.strip().lower()
-                raw = task.output.raw
-                if "scrape admissions" in desc or "scrape" in desc:
+                raw  = task.output.raw
+                if "scrape admissions" in desc:
                     raw_data = json.loads(raw) if _is_json(raw) else raw
                 elif "transform the raw" in desc or "structure" in desc:
                     structured = json.loads(raw) if _is_json(raw) else raw

@@ -1,5 +1,3 @@
-"""Crew class for AI College Exploration (AICE) multi‐agent environment."""
-
 import os
 
 from crewai import Crew, Process
@@ -9,7 +7,7 @@ from src.tasks import create_college_exploration_tasks
 
 def create_essay_writing_crew(
     session_id: str,
-    student_profile: str,
+    essay_text: str,
     target_university: str,
     style_guidelines: str,
 ) -> tuple:
@@ -33,14 +31,14 @@ def create_essay_writing_crew(
         if name in agents
     }
 
-    # build only the essay‐writing tasks
+    # build only the essay‐writing tasks, now passing essay_text
     tasks = create_college_exploration_tasks(
         session_id=session_id,
-        student_profile=student_profile,
+        essay_text=essay_text,
         target_university=target_university,
         style_guidelines=style_guidelines,
-        university_list=[],            # not used in this flow
-        comparison_criteria=[],        # not used in this flow
+        university_list=[],      # unused in this flow
+        comparison_criteria=[],  # unused in this flow
         agents=selected_agents,
     )
 
@@ -89,9 +87,9 @@ def create_program_analysis_crew(
     # build only the program‐analysis tasks
     tasks = create_college_exploration_tasks(
         session_id=session_id,
-        student_profile="",            # not used in this flow
-        target_university="",          # not used in this flow
-        style_guidelines="",           # not used in this flow
+        essay_text="",            # unused in this flow
+        target_university="",     # unused in this flow
+        style_guidelines="",      # unused in this flow
         university_list=university_list,
         comparison_criteria=comparison_criteria,
         agents=selected_agents,

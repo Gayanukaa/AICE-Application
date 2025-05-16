@@ -21,7 +21,7 @@ def create_college_exploration_agents(
     """Create agents for the AICE multi-agent system."""
     config = load_config()
 
-    # Load model and temperature settings for each agent
+    # Load model and temperature for each agent
     essay_brainstorm_model = get_config_value(
         config, "essay_brainstorm_agent", "model"
     )
@@ -75,33 +75,34 @@ def create_college_exploration_agents(
         else:
             return ChatOpenAI(model=model_name, temperature=temperature)
 
-    # Agent: Brainstorm essay topics and outline
+    # -- Feature 1: Essay Writing Agents --
+
+    # Agent: Structure and outline an uploaded essay
     essay_brainstorm_agent = Agent(
         role="Essay Brainstorm Agent",
         goal=(
-            "Generate personalized essay topic ideas and a high-level outline "
-            "for {student_profile} targeting {target_university}."
+            "Structure and outline the uploaded essay text {essay_text} into a clear framework "
+            "with introduction, body points, and conclusion aligned to {target_university} expectations."
         ),
         backstory=(
             "You are a creative assistant specialized in academic essay development, "
-            "adept at understanding student backgrounds and tailoring topics to "
-            "highlight their strengths and align with university requirements."
+            "adept at analyzing draft essays and organizing them into structured outlines."
         ),
         allow_delegation=False,
         llm=get_llm(essay_brainstorm_model, essay_brainstorm_temperature),
         tools=[SearchTool()],
     )
 
-    # Agent: Refine and polish the draft
+    # Agent: Refine and polish the uploaded essay using provided outline
     essay_refinement_agent = Agent(
         role="Essay Refinement Agent",
         goal=(
-            "Refine and polish the essay draft {draft_text} by correcting grammar, "
-            "improving tone, and ensuring alignment with {style_guidelines}."
+            "Refine and polish the uploaded essay text {essay_text} using the outline and "
+            "{style_guidelines}: correct grammar, improve tone, and enhance clarity."
         ),
         backstory=(
             "You are an expert editor with a strong command of academic writing, "
-            "known for enhancing clarity, coherence, and adherence to target style guides."
+            "known for improving clarity, coherence, and adherence to guidelines."
         ),
         allow_delegation=False,
         llm=get_llm(essay_refinement_model, essay_refinement_temperature),

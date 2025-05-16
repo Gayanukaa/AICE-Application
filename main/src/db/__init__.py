@@ -1,12 +1,10 @@
-"""Database module for AI College Exploration (AICE) project."""
-
 import os
 import json
 import uuid
 import datetime
 from typing import Any, Dict, List
 
-# Path to JSON-backed datastore
+# Path to JSON‐backed datastore
 DB_FILENAME = os.path.join(os.path.dirname(__file__), "aice_db.json")
 
 
@@ -87,16 +85,17 @@ def delete_user(user_id: str) -> None:
     update_db(db)
 
 
-#
-# Essay Writing Flow
-#
-def create_essay_session(user_id: str, profile: str, target_university: str) -> str:
-    """Start a new essay-writing session and return session_id."""
+def create_essay_session(
+    user_id: str,
+    essay_text: str,
+    target_university: str
+) -> str:
+    """Start a new essay-writing session and return its session_id."""
     db = read_db()
     session_id = str(uuid.uuid4())
     db["essay_writing_sessions"][session_id] = {
         "user_id": user_id,
-        "student_profile": profile,
+        "essay_text": essay_text,
         "target_university": target_university,
         "created_at": datetime.datetime.utcnow().isoformat(),
         "status": "pending",
@@ -116,7 +115,7 @@ def get_essay_session(session_id: str) -> Dict[str, Any]:
 def save_essay_results(
     session_id: str, outline: Any, refined_draft: str
 ) -> None:
-    """Store both outline and refined draft for a given essay session."""
+    """Store outline and refined draft, and mark the session completed."""
     db = read_db()
     if session_id not in db["essay_writing_sessions"]:
         raise KeyError(f"Essay session {session_id} not found")
