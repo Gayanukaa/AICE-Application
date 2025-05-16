@@ -1,64 +1,109 @@
-from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
-from crewai.agents.agent_builder.base_agent import BaseAgent
-from typing import List
-# If you want to run a snippet of code before or after the crew starts,
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+"""Crew class for AI College Exploration (AICE) multi‐agent environment."""
 
-@CrewBase
-class Main():
-    """Main crew"""
+import os
 
-    agents: List[BaseAgent]
-    tasks: List[Task]
+from crewai import Crew, Process
+from src.agents import create_college_exploration_agents
+from src.tasks import create_college_exploration_tasks
 
-    # Learn more about YAML configuration files here:
-    # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-    # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-    
-    # If you would like to add tools to your agents, you can learn more about it here:
-    # https://docs.crewai.com/concepts/agents#agent-tools
-    @agent
-    def researcher(self) -> Agent:
-        return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
-            verbose=True
+
+def create_essay_writing_crew(
+    session_id: str,
+    student_profile: str,
+    target_university: str,
+    style_guidelines: str,
+) -> tuple:
+    """
+    Create and run a Crew for the Essay Writing flow.
+
+    This will invoke:
+      1. essay_brainstorm_agent
+      2. essay_refinement_agent
+    """
+    # prepare log directory
+    log_dir = f"src/data/logs/{session_id}/essay"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "crew.log")
+
+    # instantiate all agents, then pick only the essay ones
+    agents = create_college_exploration_agents(session_id)
+    selected_agents = {
+        name: agents[name]
+        for name in ("essay_brainstorm_agent", "essay_refinement_agent")
+        if name in agents
+    }
+
+    # build only the essay‐writing tasks
+    tasks = create_college_exploration_tasks(
+        session_id=session_id,
+        student_profile=student_profile,
+        target_university=target_university,
+        style_guidelines=style_guidelines,
+        university_list=[],            # not used in this flow
+        comparison_criteria=[],        # not used in this flow
+        agents=selected_agents,
+    )
+
+    crew = Crew(
+        agents=list(selected_agents.values()),
+        tasks=list(tasks),
+        verbose=True,
+        Process=Process.sequential,
+        output_log_file=log_file,
+        full_output=True,
+    )
+    result = crew.kickoff()
+    return result, tasks
+
+
+def create_program_analysis_crew(
+    session_id: str,
+    university_list: list[str],
+    comparison_criteria: list[str],
+) -> tuple:
+    """
+    Create and run a Crew for Program Analysis flow (Features 2 & 3).
+
+    This will invoke:
+      1. uni_info_scraper_agent
+      2. uni_info_processor_agent
+      3. program_comparison_agent
+    """
+    # prepare log directory
+    log_dir = f"src/data/logs/{session_id}/program_analysis"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "crew.log")
+
+    # instantiate all agents, then pick only the program‐analysis ones
+    agents = create_college_exploration_agents(session_id)
+    selected_agents = {
+        name: agents[name]
+        for name in (
+            "uni_info_scraper_agent",
+            "uni_info_processor_agent",
+            "program_comparison_agent",
         )
+        if name in agents
+    }
 
-    @agent
-    def reporting_analyst(self) -> Agent:
-        return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
-            verbose=True
-        )
+    # build only the program‐analysis tasks
+    tasks = create_college_exploration_tasks(
+        session_id=session_id,
+        student_profile="",            # not used in this flow
+        target_university="",          # not used in this flow
+        style_guidelines="",           # not used in this flow
+        university_list=university_list,
+        comparison_criteria=comparison_criteria,
+        agents=selected_agents,
+    )
 
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
-    @task
-    def research_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
-        )
-
-    @task
-    def reporting_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='report.md'
-        )
-
-    @crew
-    def crew(self) -> Crew:
-        """Creates the Main crew"""
-        # To learn how to add knowledge sources to your crew, check out the documentation:
-        # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
-
-        return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
-            process=Process.sequential,
-            verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
-        )
+    crew = Crew(
+        agents=list(selected_agents.values()),
+        tasks=list(tasks),
+        verbose=True,
+        Process=Process.sequential,
+        output_log_file=log_file,
+        full_output=True,
+    )
+    result = crew.kickoff()
+    return result, tasks
