@@ -1,7 +1,7 @@
-import os
-import json
-import uuid
 import datetime
+import json
+import os
+import uuid
 from typing import Any, Dict, List
 
 # Path to JSON‐backed datastore
@@ -85,11 +85,7 @@ def delete_user(user_id: str) -> None:
     update_db(db)
 
 
-def create_essay_session(
-    user_id: str,
-    essay_text: str,
-    target_university: str
-) -> str:
+def create_essay_session(user_id: str, essay_text: str, target_university: str) -> str:
     """Start a new essay-writing session and return its session_id."""
     db = read_db()
     session_id = str(uuid.uuid4())
@@ -112,9 +108,7 @@ def get_essay_session(session_id: str) -> Dict[str, Any]:
     return db["essay_writing_sessions"][session_id]
 
 
-def save_essay_results(
-    session_id: str, outline: Any, refined_draft: str
-) -> None:
+def save_essay_results(session_id: str, outline: Any, refined_draft: str) -> None:
     """Store outline and refined draft, and mark the session completed."""
     db = read_db()
     if session_id not in db["essay_writing_sessions"]:

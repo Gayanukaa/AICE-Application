@@ -1,39 +1,44 @@
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 from crewai import Agent, Task
 from pydantic import BaseModel
-
 from src.config.report_paths import (
     ESSAY_OUTLINE_FILE,
-    REFINED_ESSAY_FILE,
-    RAW_ADMISSIONS_DATA_FILE,
-    STRUCTURED_ADMISSIONS_DATA_FILE,
     PROGRAM_COMPARISON_REPORT_FILE,
+    RAW_ADMISSIONS_DATA_FILE,
+    REFINED_ESSAY_FILE,
+    STRUCTURED_ADMISSIONS_DATA_FILE,
 )
 
 
 class EssayOutline(BaseModel):
     """Output model for essay brainstorming."""
+
     topics: List[str]
     outline: Dict[str, List[str]]
 
 
 class RefinedEssay(BaseModel):
     """Output model for refined essay."""
+
     refined_draft: str
 
 
 class RawAdmissionsData(BaseModel):
     """Output model for raw scraped admissions data."""
+
     raw_data: Any
 
 
 class StructuredAdmissionsData(BaseModel):
     """Output model for cleaned admissions data."""
+
     structured_data: Any
 
 
 class ProgramComparisonReport(BaseModel):
     """Output model for program comparison."""
+
     comparison_report: Any
 
 
@@ -47,6 +52,7 @@ def create_college_exploration_tasks(
     agents: Dict[str, Agent],
 ) -> List[Task]:
     """Build tasks for essay writing and program analysis flows."""
+
     def _path(template: str) -> str:
         return template.format(session_id=session_id)
 
@@ -67,7 +73,7 @@ def create_college_exploration_tasks(
             1. Identify introduction, key body points, and conclusion.
             2. Organize into a clear outline aligned with {target_university} expectations.
             """,
-                        expected_output="""
+            expected_output="""
             A JSON object with:
             - topics: list of section headings or key themes.
             - outline: mapping of each section to bullet-point details.

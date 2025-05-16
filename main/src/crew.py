@@ -37,7 +37,7 @@ def create_essay_writing_crew(
         essay_text=essay_text,
         target_university=target_university,
         style_guidelines=style_guidelines,
-        university_list=[],      # unused in this flow
+        university_list=[],  # unused in this flow
         comparison_criteria=[],  # unused in this flow
         agents=selected_agents,
     )
@@ -87,9 +87,9 @@ def create_program_analysis_crew(
     # build only the program‐analysis tasks
     tasks = create_college_exploration_tasks(
         session_id=session_id,
-        essay_text="",            # unused in this flow
-        target_university="",     # unused in this flow
-        style_guidelines="",      # unused in this flow
+        essay_text="",  # unused in this flow
+        target_university="",  # unused in this flow
+        style_guidelines="",  # unused in this flow
         university_list=university_list,
         comparison_criteria=comparison_criteria,
         agents=selected_agents,

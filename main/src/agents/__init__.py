@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from src.tools import (
     SearchTool,
-    fetch_admissions_data,
-    process_admissions_data,
-    compare_programs,
+#    compare_programs,
+#    fetch_admissions_data,
+#    process_admissions_data,
 )
 from src.utils import get_config_value, load_config
 
@@ -22,23 +22,17 @@ def create_college_exploration_agents(
     config = load_config()
 
     # Load model and temperature for each agent
-    essay_brainstorm_model = get_config_value(
-        config, "essay_brainstorm_agent", "model"
-    )
+    essay_brainstorm_model = get_config_value(config, "essay_brainstorm_agent", "model")
     essay_brainstorm_temperature = get_config_value(
         config, "essay_brainstorm_agent", "temperature"
     )
 
-    essay_refinement_model = get_config_value(
-        config, "essay_refinement_agent", "model"
-    )
+    essay_refinement_model = get_config_value(config, "essay_refinement_agent", "model")
     essay_refinement_temperature = get_config_value(
         config, "essay_refinement_agent", "temperature"
     )
 
-    uni_info_scraper_model = get_config_value(
-        config, "uni_info_scraper_agent", "model"
-    )
+    uni_info_scraper_model = get_config_value(config, "uni_info_scraper_agent", "model")
     uni_info_scraper_temperature = get_config_value(
         config, "uni_info_scraper_agent", "temperature"
     )
@@ -60,7 +54,7 @@ def create_college_exploration_agents(
     def get_llm(
         model_name: str, temperature: float
     ) -> Union[AzureChatOpenAI, ChatOpenAI]:
-        """Instantiate an LLM based on environment and settings."""
+        """Instantiate an LLM based on environment settings."""
         if os.getenv("USE_AZURE_OPENAI") == "true":
             azure_deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
             api_key = os.getenv("AZURE_OPENAI_API_KEY")
@@ -72,8 +66,7 @@ def create_college_exploration_agents(
                 api_key=api_key,
                 temperature=temperature,
             )
-        else:
-            return ChatOpenAI(model=model_name, temperature=temperature)
+        return ChatOpenAI(model=model_name, temperature=temperature)
 
     # -- Feature 1: Essay Writing Agents --
 
@@ -106,10 +99,11 @@ def create_college_exploration_agents(
         ),
         allow_delegation=False,
         llm=get_llm(essay_refinement_model, essay_refinement_temperature),
-        tools=[],
+        #tools=[],
     )
 
-    # Agent: Scrape university admissions data
+    # -- Features 2 & 3: Program Analysis Agents --
+
     uni_info_scraper_agent = Agent(
         role="University Info Scraper Agent",
         goal=(
@@ -122,10 +116,9 @@ def create_college_exploration_agents(
         ),
         allow_delegation=False,
         llm=get_llm(uni_info_scraper_model, uni_info_scraper_temperature),
-        tools=[SearchTool(), fetch_admissions_data],
+        #tools=[SearchTool(), fetch_admissions_data],
     )
 
-    # Agent: Process raw admissions data into a structured schema
     uni_info_processor_agent = Agent(
         role="University Info Processor Agent",
         goal=(
@@ -134,14 +127,13 @@ def create_college_exploration_agents(
         ),
         backstory=(
             "You are a data wrangler experienced in cleaning and structuring unstructured data, "
-            "turning raw inputs into standardized, machine-readable formats."
+            "turning raw inputs into standardized formats."
         ),
         allow_delegation=False,
         llm=get_llm(uni_info_processor_model, uni_info_processor_temperature),
-        tools=[process_admissions_data],
+        #tools=[process_admissions_data],
     )
 
-    # Agent: Compare university programs side-by-side
     program_comparison_agent = Agent(
         role="Program Comparison Agent",
         goal=(
@@ -155,7 +147,7 @@ def create_college_exploration_agents(
         ),
         allow_delegation=False,
         llm=get_llm(program_comparison_model, program_comparison_temperature),
-        tools=[compare_programs],
+        #tools=[compare_programs],
     )
 
     return {

@@ -1,11 +1,8 @@
 import json
-from typing import Dict, Any
+from typing import Any, Dict
 
 import src.db as db
-from src.crew import (
-    create_essay_writing_crew,
-    create_program_analysis_crew,
-)
+from src.crew import create_essay_writing_crew, create_program_analysis_crew
 
 
 def generate_college_exploration_background(
@@ -31,7 +28,7 @@ def generate_college_exploration_background(
             # kickoff Essay Writing Crew, now using essay_text
             result, tasks = create_essay_writing_crew(
                 session_id=session_id,
-                essay_text=session_data["essay_text"],             # ← changed
+                essay_text=session_data["essay_text"],  # ← changed
                 target_university=session_data["target_university"],
                 style_guidelines=session_data["style_guidelines"],
             )
@@ -41,7 +38,7 @@ def generate_college_exploration_background(
             refined = None
             for task in tasks:
                 desc = task.description.strip().lower()
-                raw  = task.output.raw
+                raw = task.output.raw
                 if "structure and outline" in desc:
                     outline = json.loads(raw) if _is_json(raw) else raw
                 elif "refine" in desc:
@@ -64,12 +61,12 @@ def generate_college_exploration_background(
                 comparison_criteria=session_data["comparison_criteria"],
             )
 
-            raw_data  = None
+            raw_data = None
             structured = None
-            report     = None
+            report = None
             for task in tasks:
                 desc = task.description.strip().lower()
-                raw  = task.output.raw
+                raw = task.output.raw
                 if "scrape admissions" in desc:
                     raw_data = json.loads(raw) if _is_json(raw) else raw
                 elif "transform the raw" in desc or "structure" in desc:
