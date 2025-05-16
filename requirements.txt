@@ -1,0 +1,11 @@
+langchain
+crewai
+langchain_community
+langchain_openai
+python-dotenv
+pre-commit
+amadeus
+wikipedia
+requests
+fastapi
+uvicorn
