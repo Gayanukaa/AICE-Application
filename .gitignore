@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# Files and Folders
+.pre-commit-config.yaml
+mypy.ini
+.flake8
+
+
 # Distribution / packaging
 .Python
 build/
