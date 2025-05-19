@@ -1,6 +1,6 @@
 # app.py
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
 
@@ -22,9 +22,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.post("/sessions/essay")
-def start_essay_session(payload: Dict[str, Any]):
+def start_essay_session(
+    payload: Dict[str, Any],
+    background_tasks: BackgroundTasks
+):
     """
     Start an essay-writing session.
     Expects JSON with:
@@ -47,7 +49,8 @@ def start_essay_session(payload: Dict[str, Any]):
     session_id = db.create_essay_session(user_id, essay_text, target_university)
 
     # Kick off background flow
-    generate_college_exploration_background(
+    background_tasks.add_task(
+        generate_college_exploration_background,
         session_id,
         {
             "flow_type": "essay",
@@ -57,6 +60,7 @@ def start_essay_session(payload: Dict[str, Any]):
         },
     )
 
+    # return immediately
     return {"session_id": session_id}
 
 
@@ -92,7 +96,10 @@ def get_essay_result(session_id: str):
 
 
 @app.post("/sessions/program-analysis")
-def start_program_analysis(payload: Dict[str, Any]):
+def start_program_analysis(
+    payload: Dict[str, Any],
+    background_tasks: BackgroundTasks
+):
     """
     Start a program-analysis session.
     Expects JSON with:
@@ -111,7 +118,8 @@ def start_program_analysis(payload: Dict[str, Any]):
 
     session_id = db.create_program_analysis_session(user_id, university_list, comparison_criteria)
 
-    generate_college_exploration_background(
+    background_tasks.add_task(
+        generate_college_exploration_background,
         session_id,
         {
             "flow_type": "program_analysis",
