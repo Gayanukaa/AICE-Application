@@ -1,8 +1,8 @@
 import os
 
 from crewai import Crew, Process
-from src.agents import create_college_exploration_agents
-from src.tasks import create_college_exploration_tasks
+from agents import create_college_exploration_agents
+from tasks import create_college_exploration_tasks
 
 
 def create_essay_writing_crew(

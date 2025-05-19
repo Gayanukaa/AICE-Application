@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 
 from crewai import Agent, Task
 from pydantic import BaseModel
-from src.config.report_paths import (
+from config.report_paths import (
     ESSAY_OUTLINE_FILE,
     PROGRAM_COMPARISON_REPORT_FILE,
     RAW_ADMISSIONS_DATA_FILE,

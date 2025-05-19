@@ -4,13 +4,13 @@ from typing import Union
 from crewai import Agent, LLM
 from dotenv import load_dotenv
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
-from src.tools import (
+from tools import (
     SearchTool,
 #    compare_programs,
 #    fetch_admissions_data,
 #    process_admissions_data,
 )
-from src.utils import get_config_value, load_config
+from utils import get_config_value, load_config
 
 load_dotenv()
 

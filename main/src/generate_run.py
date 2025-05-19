@@ -1,8 +1,8 @@
 import json
 from typing import Any, Dict
 
-import src.db as db
-from src.crew import create_essay_writing_crew, create_program_analysis_crew
+import db as db
+from crew import create_essay_writing_crew, create_program_analysis_crew
 
 
 def generate_college_exploration_background(

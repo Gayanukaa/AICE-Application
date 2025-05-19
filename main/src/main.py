@@ -3,7 +3,7 @@ import sys
 import warnings
 from datetime import datetime
 
-from src.crew import Main
+from crew import Main
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
