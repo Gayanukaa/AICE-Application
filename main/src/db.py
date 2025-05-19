@@ -5,7 +5,7 @@ import uuid
 from typing import Any, Dict, List
 
 # Path to JSON‐backed datastore
-DB_FILENAME = os.path.join(os.path.dirname(__file__), "aice_db.json")
+DB_FILENAME = os.path.join(os.path.dirname(__file__), "db/aice_db.json")
 
 
 def read_db() -> Dict[str, Any]:

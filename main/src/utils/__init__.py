@@ -2,7 +2,7 @@ import json
 from typing import Any
 
 
-def load_config(config_path: str = "src/config/config.json") -> dict:
+def load_config(config_path: str = "config/config.json") -> dict:
     """Load configuration from a JSON file and return as a dictionary."""
     with open(config_path, "r") as f:
         return json.load(f)

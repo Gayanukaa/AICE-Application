@@ -9,10 +9,14 @@ from utils.api import (
 def display_essay_results(session_id: str):
     """Poll and display results for an essay-writing session."""
     st.subheader("Essay Writing Results")
-    status = get_essay_status(session_id)
-    st.write("Status:", status["status"].capitalize())
+    resp  = get_essay_status(session_id)
+    st.write("Status:", resp["status"].capitalize())
 
-    if status["status"] == "completed":
+    if resp["status"] == "failed":
+        st.error(f"⚠️ The session failed with error:\n\n{resp.get('error')}")
+        return
+
+    if resp ["status"] == "completed":
         res = get_essay_result(session_id)
         st.markdown("### Structured Outline")
         st.json(res["outline"])

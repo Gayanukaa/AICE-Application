@@ -19,7 +19,7 @@ def create_essay_writing_crew(
       2. essay_refinement_agent
     """
     # prepare log directory
-    log_dir = f"src/data/logs/{session_id}/essay"
+    log_dir = f"data/logs/{session_id}/essay"
     os.makedirs(log_dir, exist_ok=True)
     log_file = os.path.join(log_dir, "crew.log")
 
@@ -68,7 +68,7 @@ def create_program_analysis_crew(
       3. program_comparison_agent
     """
     # prepare log directory
-    log_dir = f"src/data/logs/{session_id}/program_analysis"
+    log_dir = f"data/logs/{session_id}/program_analysis"
     os.makedirs(log_dir, exist_ok=True)
     log_file = os.path.join(log_dir, "crew.log")
 

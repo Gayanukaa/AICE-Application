@@ -67,7 +67,13 @@ def get_essay_status(session_id: str):
     Returns status = one of ["pending","in_progress","completed","failed"].
     """
     sess = db.get_essay_session(session_id)
-    return {"session_id": session_id, "status": sess["status"]}
+    resp = {
+        "session_id": session_id,
+        "status": sess["status"],
+    }
+    if sess["status"] == "failed":
+        resp["error"] = sess.get("error", "Unknown error")
+    return resp
 
 
 @app.get("/sessions/essay/{session_id}/result")
