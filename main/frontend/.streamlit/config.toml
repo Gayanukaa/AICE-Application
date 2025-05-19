@@ -1,1 +1,15 @@
-# Placeholder for config.toml
+[theme]
+base="dark"
+primaryColor = "#4e79a7"
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#13171D"
+textColor = "#FAFAFA"
+font = "sans serif"
+
+[server]
+headless = true
+port = 8501
+enableCORS = true
+
+[runner]
+magicEnabled = false
