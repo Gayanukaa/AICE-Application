@@ -1,7 +1,7 @@
 import os
 from typing import Union
 
-from crewai import Agent
+from crewai import Agent, LLM
 from dotenv import load_dotenv
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from src.tools import (
@@ -51,19 +51,13 @@ def create_college_exploration_agents(
         config, "program_comparison_agent", "temperature"
     )
 
-    def get_llm(
-        model_name: str, temperature: float
-    ) -> Union[AzureChatOpenAI, ChatOpenAI]:
-        """Instantiate an LLM based on environment settings."""
+    def get_llm(model_name: str, temperature: float) -> Union[LLM, ChatOpenAI]:
         if os.getenv("USE_AZURE_OPENAI") == "true":
-            azure_deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
-            api_key = os.getenv("AZURE_OPENAI_API_KEY")
-            api_version = os.getenv("OPENAI_API_VERSION")
-            return AzureChatOpenAI(
-                model_name=model_name,
-                azure_deployment=azure_deployment,
-                api_version=api_version,
-                api_key=api_key,
+            return LLM(
+                model=f"azure/{os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME')}",
+                api_version=os.getenv("OPENAI_API_VERSION"),
+                api_base=os.getenv("AZURE_OPENAI_ENDPOINT"),
+                api_key=os.getenv("AZURE_OPENAI_API_KEY"),
                 temperature=temperature,
             )
         return ChatOpenAI(model=model_name, temperature=temperature)

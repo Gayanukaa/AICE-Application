@@ -9,16 +9,7 @@ from pydantic import Field
 load_dotenv()
 
 
-llm = AzureChatOpenAI(
-    model_name="gpt-4o",
-    azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
-    api_version=os.getenv("OPENAI_API_VERSION"),
-    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-    temperature=0.1,
-)
-
 search = GoogleSerperAPIWrapper()
-
 
 class SearchTool(BaseTool):
     name: str = "Search"
