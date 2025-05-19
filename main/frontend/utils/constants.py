@@ -1,1 +1,1 @@
-# Placeholder for constants.py
+API_BASE_URL = "http://localhost:8000"
