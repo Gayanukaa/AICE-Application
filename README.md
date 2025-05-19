@@ -24,8 +24,8 @@ AICE is a multi-agent system to help students explore and apply to universities 
 1. **Clone the repo**
 
    ```bash
-   git clone https://github.com/your-org/aice.git
-   cd aice
+   git clone https://github.com/Gayanukaa/AICE-Backend.git
+   cd AICE-Backend
    ````
 
 2. **Install dependencies**
@@ -48,10 +48,11 @@ AICE is a multi-agent system to help students explore and apply to universities 
 4. **Start the API**
 
    ```bash
-   uvicorn src.api.app:app --reload
+   cd main/src
+   uvicorn app:app --reload --port 8000
    ```
 
-   The backend will be available at `http://localhost:8000/`.
+   The backend will be available at `http://localhost:8000/docs`.
 
 ### Frontend Setup
 
