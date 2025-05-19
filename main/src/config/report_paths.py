@@ -1,6 +1,6 @@
 import os
 
-REPORT_DIR = os.path.join("src", "data", "report", "{session_id}")
+REPORT_DIR = os.path.join("data", "report", "{session_id}")
 
 ESSAY_OUTLINE_FILE = os.path.join(REPORT_DIR, "essay_outlines.md")
 REFINED_ESSAY_FILE = os.path.join(REPORT_DIR, "refined_essays.md")
