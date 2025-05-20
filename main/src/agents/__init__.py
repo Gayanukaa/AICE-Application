@@ -66,6 +66,10 @@ def create_college_exploration_agents(
 
     # Agent: Structure and outline an uploaded essay
     essay_brainstorm_agent = Agent(
+        system_template="""You are an expert academic writing coach.
+        Always respond with valid JSON matching the schema:
+        { "topics": [...], "outline": { section: [bullets] } }
+        Do not add any prose outside the JSON.""",
         role="Essay Brainstorm Agent",
         goal=(
             "Structure and outline the uploaded essay text {essay_text} into a clear framework "
@@ -86,6 +90,7 @@ def create_college_exploration_agents(
         goal=(
             "Refine and polish the uploaded essay text {essay_text} using the outline and "
             "{style_guidelines}: correct grammar, improve tone, and enhance clarity."
+            "First THINK through each section you will propose (in plain English, preceded by “THOUGHT: …”), then output the final JSON ONLY under a ###Final Answer### heading."
         ),
         backstory=(
             "You are an expert editor with a strong command of academic writing, "

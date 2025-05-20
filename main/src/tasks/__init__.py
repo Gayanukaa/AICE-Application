@@ -91,6 +91,8 @@ def create_college_exploration_tasks(
             description=f"""
             Refine the uploaded essay text using the outline from the previous task and style guidelines:
 
+            **IMPORTANT** – Please put each outline section into its own paragraph, in order, separated by a blank line.
+
             Essay Text:
             {essay_text}
 
