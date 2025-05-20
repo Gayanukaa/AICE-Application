@@ -11,3 +11,8 @@ STRUCTURED_ADMISSIONS_DATA_FILE = os.path.join(
 PROGRAM_COMPARISON_REPORT_FILE = os.path.join(
     REPORT_DIR, "program_comparison_report.md"
 )
+DYNAMIC_CHECKLIST_FILE = os.path.join(REPORT_DIR, "dynamic_checklist.md")
+RAW_FEES_FILE = os.path.join(REPORT_DIR, "raw_fees.json")
+COST_BREAKDOWN_FILE = os.path.join(REPORT_DIR, "cost_breakdown.json")
+DEADLINES_FILE = os.path.join(REPORT_DIR, "deadlines.json")
+TIMELINE_FILE   = os.path.join(REPORT_DIR, "timeline.json")
