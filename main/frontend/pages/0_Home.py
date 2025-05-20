@@ -1,16 +1,7 @@
+# frontend/pages/intro_page.py
 import streamlit as st
 
-# Page config
-st.set_page_config(
-    page_title="AI College Exploration (AICE)",
-    layout="wide",
-)
-
-# Title
-st.markdown(
-    "<h1 style='text-align:center; font-size:3rem;'>🎓 AI College Exploration (AICE)</h1>",
-    unsafe_allow_html=True,
-)
+st.title("🎓 AI College Exploration (AICE)")
 
 # Brief description
 st.markdown(
