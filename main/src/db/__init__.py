@@ -227,3 +227,163 @@ def delete_program_analysis_session(session_id: str) -> None:
     db["structured_admissions_data"].pop(session_id, None)
     db["program_comparison_reports"].pop(session_id, None)
     update_db(db)
+
+# dynamic checklist
+def create_checklist_session(user_id: str, nationality: str, program_level: str, university_list: List[str]) -> str:
+    db = read_db()
+    session_id = str(uuid.uuid4())
+    db["checklist_sessions"][session_id] = {
+        "user_id": user_id,
+        "nationality": nationality,
+        "program_level": program_level,
+        "university_list": university_list,
+        "created_at": datetime.datetime.utcnow().isoformat(),
+        "status": "pending",
+    }
+    update_db(db)
+    return session_id
+
+
+def get_checklist_session(session_id: str) -> Dict[str, Any]:
+    db = read_db()
+    if session_id not in db["checklist_sessions"]:
+        raise KeyError(f"Checklist session {session_id} not found")
+    return db["checklist_sessions"][session_id]
+
+
+def save_dynamic_checklist(session_id: str, checklist: Any) -> None:
+    db = read_db()
+    if session_id not in db["checklist_sessions"]:
+        raise KeyError(f"Checklist session {session_id} not found")
+    db["dynamic_checklists"][session_id] = {
+        "checklist": checklist,
+        "completed_at": datetime.datetime.utcnow().isoformat(),
+    }
+    db["checklist_sessions"][session_id]["status"] = "completed"
+    update_db(db)
+
+
+def get_dynamic_checklist(session_id: str) -> Dict[str, Any]:
+    db = read_db()
+    if session_id not in db["dynamic_checklists"]:
+        raise KeyError(f"No checklist for session {session_id}")
+    return db["dynamic_checklists"][session_id]
+
+
+def delete_checklist_session(session_id: str) -> None:
+    db = read_db()
+    db["checklist_sessions"].pop(session_id, None)
+    db["dynamic_checklists"].pop(session_id, None)
+    update_db(db)
+
+# cost breakdown
+def create_cost_breakdown_session(user_id: str, university_list: List[str], program_level: str, user_budget: float, destination: str) -> str:
+    db = read_db()
+    session_id = str(uuid.uuid4())
+    db["cost_breakdown_sessions"][session_id] = {
+        "user_id": user_id,
+        "university_list": university_list,
+        "program_level": program_level,
+        "user_budget": user_budget,
+        "destination": destination,
+        "created_at": datetime.datetime.utcnow().isoformat(),
+        "status": "pending",
+    }
+    update_db(db)
+    return session_id
+
+
+def get_cost_breakdown_session(session_id: str) -> Dict[str, Any]:
+    db = read_db()
+    if session_id not in db["cost_breakdown_sessions"]:
+        raise KeyError(f"Cost breakdown session {session_id} not found")
+    return db["cost_breakdown_sessions"][session_id]
+
+
+def save_cost_breakdown(session_id: str, fee_data: Any, breakdown: Any) -> None:
+    db = read_db()
+    if session_id not in db["cost_breakdown_sessions"]:
+        raise KeyError(f"Cost breakdown session {session_id} not found")
+    db["cost_breakdown_results"][session_id] = {
+        "fee_data": fee_data,
+        "cost_breakdown": breakdown,
+        "completed_at": datetime.datetime.utcnow().isoformat(),
+    }
+    db["cost_breakdown_sessions"][session_id]["status"] = "completed"
+    update_db(db)
+
+
+def get_fee_data(session_id: str) -> Any:
+    db = read_db()
+    if session_id not in db["cost_breakdown_results"]:
+        raise KeyError(f"No fee data for session {session_id}")
+    return db["cost_breakdown_results"][session_id].get("fee_data")
+
+
+def get_cost_breakdown(session_id: str) -> Any:
+    db = read_db()
+    if session_id not in db["cost_breakdown_results"]:
+        raise KeyError(f"No cost breakdown for session {session_id}")
+    return db["cost_breakdown_results"][session_id].get("cost_breakdown")
+
+
+def delete_cost_breakdown_session(session_id: str) -> None:
+    db = read_db()
+    db["cost_breakdown_sessions"].pop(session_id, None)
+    db["cost_breakdown_results"].pop(session_id, None)
+    update_db(db)
+
+def create_timeline_session(user_id: str, university_list: List[str], program_level: str, applicant_availability: Optional[str]) -> str:
+    db = read_db()
+    session_id = str(uuid.uuid4())
+    db["timeline_sessions"][session_id] = {
+        "user_id": user_id,
+        "university_list": university_list,
+        "program_level": program_level,
+        "applicant_availability": applicant_availability,
+        "created_at": datetime.datetime.utcnow().isoformat(),
+        "status": "pending",
+    }
+    update_db(db)
+    return session_id
+
+
+def get_timeline_session(session_id: str) -> Dict[str, Any]:
+    db = read_db()
+    if session_id not in db["timeline_sessions"]:
+        raise KeyError(f"Timeline session {session_id} not found")
+    return db["timeline_sessions"][session_id]
+
+
+def save_timeline(session_id: str, deadlines: Any, timeline: Any) -> None:
+    db = read_db()
+    if session_id not in db["timeline_sessions"]:
+        raise KeyError(f"Timeline session {session_id} not found")
+    db["timeline_results"][session_id] = {
+        "deadlines": deadlines,
+        "timeline": timeline,
+        "completed_at": datetime.datetime.utcnow().isoformat(),
+    }
+    db["timeline_sessions"][session_id]["status"] = "completed"
+    update_db(db)
+
+
+def get_deadline_data(session_id: str) -> Any:
+    db = read_db()
+    if session_id not in db["timeline_results"]:
+        raise KeyError(f"No deadlines for session {session_id}")
+    return db["timeline_results"][session_id].get("deadlines")
+
+
+def get_timeline(session_id: str) -> Any:
+    db = read_db()
+    if session_id not in db["timeline_results"]:
+        raise KeyError(f"No timeline for session {session_id}")
+    return db["timeline_results"][session_id].get("timeline")
+
+
+def delete_timeline_session(session_id: str) -> None:
+    db = read_db()
+    db["timeline_sessions"].pop(session_id, None)
+    db["timeline_results"].pop(session_id, None)
+    update_db(db)
