@@ -1,5 +1,5 @@
 from typing import Any, Dict, List
-
+from typing import Optional
 from crewai import Agent, Task
 from pydantic import BaseModel
 from config.report_paths import (
@@ -8,6 +8,11 @@ from config.report_paths import (
     RAW_ADMISSIONS_DATA_FILE,
     REFINED_ESSAY_FILE,
     STRUCTURED_ADMISSIONS_DATA_FILE,
+    DYNAMIC_CHECKLIST_FILE,
+    RAW_FEES_FILE,
+    COST_BREAKDOWN_FILE,
+    DEADLINES_FILE,
+    TIMELINE_FILE,
 )
 
 
@@ -41,6 +46,68 @@ class ProgramComparisonReport(BaseModel):
 
     comparison_report: Any
 
+
+# --- University Planning Outputs ---
+
+class ChecklistItem(BaseModel):
+    document: str
+    required: bool
+    notes: Optional[str]
+
+
+class Checklist(BaseModel):
+    """Output model for dynamic application checklist."""
+    university: str
+    items: List[ChecklistItem]
+
+
+class RawFees(BaseModel):
+    """Output model for raw university fee retrieval."""
+    university: str
+    program_level: str
+    tuition_fee: float
+
+
+class CostItem(BaseModel):
+    category: str
+    cost: float
+
+
+class CostBreakdown(BaseModel):
+    """Output model for detailed cost estimation."""
+    total_budget: float
+    breakdown: List[CostItem]
+
+
+class InterviewPeriod(BaseModel):
+    start: str  # ISO date
+    end: str    # ISO date
+
+
+class DeadlineData(BaseModel):
+    """Output model for extracted application deadlines."""
+    university: str
+    application_start: str
+    application_end: str
+    essay_deadline: Optional[str]
+    interview_periods: List[InterviewPeriod]
+    scholarship_deadlines: List[str]
+
+
+class TimelineEvent(BaseModel):
+    date: str
+    task: str
+
+
+class SuggestedItem(BaseModel):
+    task: str
+    recommended_date: str
+
+
+class ApplicationTimeline(BaseModel):
+    """Output model for suggested application timeline."""
+    events: List[TimelineEvent]
+    suggestions: List[SuggestedItem]
 
 def create_college_exploration_tasks(
     session_id: str,
