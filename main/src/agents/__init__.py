@@ -51,41 +51,6 @@ def create_college_exploration_agents(
         config, "program_comparison_agent", "temperature"
     )
 
-    dynamic_checklist_model = get_config_value(
-        config, "dynamic_checklist_agent", "model"
-    )
-    dynamic_checklist_temperature = get_config_value(
-        config, "dynamic_checklist_agent", "temperature"
-    )
-
-    cost_breakdown_model = get_config_value(
-        config, "cost_breakdown_agent", "model"
-    )
-    cost_breakdown_temperature = get_config_value(
-        config, "cost_breakdown_agent", "temperature"
-    )
-
-    timeline_planner_model = get_config_value(
-        config, "timeline_planner_agent", "model"
-    )
-    timeline_planner_temperature = get_config_value(
-        config, "timeline_planner_agent", "temperature"
-    )
-
-    fee_retriever_model = get_config_value(
-        config, "fee_retriever_agent", "model"
-    )
-    fee_retriever_temperature = get_config_value(
-        config, "fee_retriever_agent", "temperature"
-    )
-
-    deadline_extractor_model = get_config_value(
-        config, "deadline_extractor_agent", "model"
-    )
-    deadline_extractor_temperature = get_config_value(
-        config, "deadline_extractor_agent", "temperature"
-    )
-
     def get_llm(model_name: str, temperature: float) -> Union[LLM, ChatOpenAI]:
         if os.getenv("USE_AZURE_OPENAI") == "true":
             return LLM(
@@ -183,6 +148,66 @@ def create_college_exploration_agents(
         llm=get_llm(program_comparison_model, program_comparison_temperature),
         # tools=[compare_programs],
     )
+
+    return {
+        "essay_brainstorm_agent": essay_brainstorm_agent,
+        "essay_refinement_agent": essay_refinement_agent,
+        "uni_info_scraper_agent": uni_info_scraper_agent,
+        "uni_info_processor_agent": uni_info_processor_agent,
+        "program_comparison_agent": program_comparison_agent
+    }
+
+def create_university_planning_agents(
+    session_id: str,
+) -> dict[str, Agent]:
+    """Create agents for the AICE multi-agent system."""
+    config = load_config()
+
+    dynamic_checklist_model = get_config_value(
+        config, "dynamic_checklist_agent", "model"
+    )
+    dynamic_checklist_temperature = get_config_value(
+        config, "dynamic_checklist_agent", "temperature"
+    )
+
+    cost_breakdown_model = get_config_value(
+        config, "cost_breakdown_agent", "model"
+    )
+    cost_breakdown_temperature = get_config_value(
+        config, "cost_breakdown_agent", "temperature"
+    )
+
+    timeline_planner_model = get_config_value(
+        config, "timeline_planner_agent", "model"
+    )
+    timeline_planner_temperature = get_config_value(
+        config, "timeline_planner_agent", "temperature"
+    )
+
+    fee_retriever_model = get_config_value(
+        config, "fee_retriever_agent", "model"
+    )
+    fee_retriever_temperature = get_config_value(
+        config, "fee_retriever_agent", "temperature"
+    )
+
+    deadline_extractor_model = get_config_value(
+        config, "deadline_extractor_agent", "model"
+    )
+    deadline_extractor_temperature = get_config_value(
+        config, "deadline_extractor_agent", "temperature"
+    )
+
+    def get_llm(model_name: str, temperature: float) -> Union[LLM, ChatOpenAI]:
+        if os.getenv("USE_AZURE_OPENAI") == "true":
+            return LLM(
+                model=f"azure/{os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME')}",
+                api_version=os.getenv("OPENAI_API_VERSION"),
+                api_base=os.getenv("AZURE_OPENAI_ENDPOINT"),
+                api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+                temperature=temperature,
+            )
+        return ChatOpenAI(model=model_name, temperature=temperature)
 
     dynamic_checklist_agent = Agent(
         role="Dynamic Application Checklist Generator",
@@ -284,14 +309,10 @@ def create_college_exploration_agents(
 
 
     return {
-        "essay_brainstorm_agent": essay_brainstorm_agent,
-        "essay_refinement_agent": essay_refinement_agent,
-        "uni_info_scraper_agent": uni_info_scraper_agent,
-        "uni_info_processor_agent": uni_info_processor_agent,
-        "program_comparison_agent": program_comparison_agent,
         "dynamic_checklist_agent": dynamic_checklist_agent,
         "fee_retriever_agent": fee_retriever_agent,
         "cost_breakdown_generator_agent": cost_breakdown_generator_agent,
         "deadline_extractor_agent": deadline_extractor_agent,
         "timeline_generator_agent": timeline_generator_agent
     }
+
