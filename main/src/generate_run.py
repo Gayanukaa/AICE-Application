@@ -1,6 +1,14 @@
 import json
 from typing import Any, Dict
 
+import logging
+import json
+from typing import Dict, Any
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 import db as db
 from crew import create_essay_writing_crew, create_program_analysis_crew
 from crew import create_dynamic_checklist_crew, cost_breakdown_crew, create_timeline_generator_crew
@@ -115,49 +123,47 @@ def generate_application_planning_background(
     session_id: str,
     session_data: Dict[str, Any],
 ) -> None:
-    """
-    Dispatch the appropriate planning flow based on session_data['flow_type']:
-      - "dynamic_checklist" → Dynamic Application Checklist flow (Feature 4)
-      - "cost_breakdown"    → Personalized Cost Breakdown flow (Feature 5)
-      - "timeline"          → Interactive Application Timeline flow (Feature 6)
-
-    Persist intermediate and final outputs into our JSON datastore.
-    """
     flow = session_data.get("flow_type")
+    logger.info(f"Starting application planning for session: {session_id}, flow: {flow}")
+
     try:
-        # ─── Dynamic Checklist ───────────────────────────────────────────────
         if flow == "dynamic_checklist":
-            # mark in-progress
+            logger.info("Flow type is 'dynamic_checklist'")
+
             sess = db.get_checklist_session(session_id)
             sess["status"] = "in_progress"
+            logger.info(f"Checklist session marked in progress: {sess}")
             all_db = db.read_db()
             all_db["checklist_sessions"][session_id] = sess
             db.update_db(all_db)
 
-            # kickoff checklist crew
             result, tasks = create_dynamic_checklist_crew(
                 session_id=session_id,
                 nationality=session_data["nationality"],
                 program_level=session_data["program_level"],
                 university_list=session_data["university_list"],
             )
+            logger.info("Checklist crew run complete")
 
-            # collect outputs
             checklist = None
             for task in tasks:
+                logger.debug(f"Evaluating task: {task.description}")
                 desc = task.description.strip().lower()
                 raw = task.output.raw
                 if "checklist" in desc:
                     checklist = json.loads(raw) if _is_json(raw) else raw
+                    logger.info(f"Checklist generated: {checklist}")
                     break
 
-            # save to DB (also marks session completed)
             db.save_dynamic_checklist(session_id, checklist)
+            logger.info("Checklist saved to DB")
 
-        # ─── Cost Breakdown ─────────────────────────────────────────────────
         elif flow == "cost_breakdown":
+            logger.info("Flow type is 'cost_breakdown'")
+
             sess = db.get_cost_breakdown_session(session_id)
             sess["status"] = "in_progress"
+            logger.info(f"Cost breakdown session marked in progress: {sess}")
             all_db = db.read_db()
             all_db["cost_breakdown_sessions"][session_id] = sess
             db.update_db(all_db)
@@ -169,25 +175,31 @@ def generate_application_planning_background(
                 user_budget=session_data["user_budget"],
                 destination=session_data["destination"],
             )
+            logger.info("Cost breakdown crew run complete")
 
-            # collect outputs
             fees = None
             breakdown = None
             for task in tasks:
+                logger.debug(f"Evaluating task: {task.description}")
                 desc = task.description.strip().lower()
                 raw = task.output.raw
                 if "retrieve fees" in desc or "fee_retriever" in task.agent.role.lower():
                     fees = json.loads(raw) if _is_json(raw) else raw
+                    logger.info(f"Fees retrieved: {fees}")
                 elif "cost breakdown" in desc or "breakdown" in task.agent.role.lower():
                     breakdown = json.loads(raw) if _is_json(raw) else raw
+                    logger.info(f"Breakdown generated: {breakdown}")
 
             db.save_fee_data(session_id, fees)
             db.save_cost_breakdown(session_id, breakdown)
+            logger.info("Cost breakdown saved to DB")
 
-        # ─── Timeline Planner ───────────────────────────────────────────────
         elif flow == "timeline":
+            logger.info("Flow type is 'timeline'")
+
             sess = db.get_timeline_session(session_id)
             sess["status"] = "in_progress"
+            logger.info(f"Timeline session marked in progress: {sess}")
             all_db = db.read_db()
             all_db["timeline_sessions"][session_id] = sess
             db.update_db(all_db)
@@ -198,27 +210,30 @@ def generate_application_planning_background(
                 program_level=session_data["program_level"],
                 applicant_availability=session_data.get("applicant_availability"),
             )
+            logger.info("Timeline generator crew run complete")
 
-            # collect outputs
             deadlines = None
             timeline = None
             for task in tasks:
+                logger.debug(f"Evaluating task: {task.description}")
                 desc = task.description.strip().lower()
                 raw = task.output.raw
                 if "deadline extractor" in task.agent.role.lower() or "extract deadlines" in desc:
                     deadlines = json.loads(raw) if _is_json(raw) else raw
+                    logger.info(f"Deadlines extracted: {deadlines}")
                 elif "timeline generator" in task.agent.role.lower() or "generate timeline" in desc:
                     timeline = json.loads(raw) if _is_json(raw) else raw
+                    logger.info(f"Timeline generated: {timeline}")
 
             db.save_deadline_data(session_id, deadlines)
             db.save_timeline(session_id, timeline)
+            logger.info("Timeline data saved to DB")
 
         else:
             raise ValueError(f"Unknown flow_type: {flow}")
 
     except Exception as e:
-        # ─── error handling ───────────────────────────────────────────────────
-        # map flow to its session‐getter/save namespace
+        logger.error(f"Error occurred during flow '{flow}' for session '{session_id}': {e}", exc_info=True)
         if flow == "dynamic_checklist":
             sess = db.get_checklist_session(session_id)
             key = "checklist_sessions"
@@ -229,7 +244,6 @@ def generate_application_planning_background(
             sess = db.get_timeline_session(session_id)
             key = "timeline_sessions"
         else:
-            # if flow is nonsense, re‐raise
             raise
 
         sess["status"] = "failed"
@@ -237,8 +251,7 @@ def generate_application_planning_background(
         d = db.read_db()
         d[key][session_id] = sess
         db.update_db(d)
-        # swallow exception so we mark failure and return cleanly
-
+        logger.info(f"Marked session {session_id} as failed and saved error")
 
 def _is_json(s: str) -> bool:
     """Utility to detect whether a string can be parsed as JSON."""

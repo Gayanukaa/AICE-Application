@@ -152,7 +152,7 @@ def create_dynamic_checklist_crew(
         output_log_file=log_file,
         full_output=True,
     )
-    result = crew.kickoff(verbose=True)
+    result = crew.kickoff()
     return result, tasks
 
 
@@ -253,5 +253,5 @@ def create_timeline_generator_crew(
         output_log_file=log_file,
         full_output=True,
     )
-    result = crew.kickoff(verbose=True)
+    result = crew.kickoff()
     return result, tasks
