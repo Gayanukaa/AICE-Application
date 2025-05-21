@@ -203,7 +203,7 @@ def cost_breakdown_crew(
         output_log_file=log_file,
         full_output=True,
     )
-    result = crew.kickoff(verbose=True)
+    result = crew.kickoff()
     return result, tasks
 
 

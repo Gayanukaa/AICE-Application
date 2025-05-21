@@ -190,8 +190,7 @@ def generate_application_planning_background(
                     breakdown = json.loads(raw) if _is_json(raw) else raw
                     logger.info(f"Breakdown generated: {breakdown}")
 
-            db.save_fee_data(session_id, fees)
-            db.save_cost_breakdown(session_id, breakdown)
+            db.save_cost_breakdown(session_id,fees, breakdown)
             logger.info("Cost breakdown saved to DB")
 
         elif flow == "timeline":
@@ -225,8 +224,7 @@ def generate_application_planning_background(
                     timeline = json.loads(raw) if _is_json(raw) else raw
                     logger.info(f"Timeline generated: {timeline}")
 
-            db.save_deadline_data(session_id, deadlines)
-            db.save_timeline(session_id, timeline)
+            db.save_timeline(session_id,deadlines, timeline)
             logger.info("Timeline data saved to DB")
 
         else:
