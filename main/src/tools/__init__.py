@@ -85,6 +85,7 @@ def extract_relevant_content(field: str, text: str) -> str:
     Only the following fields can be used:  
     "requirements", "deadlines", "fees", "scholarships", "university ranking", "subject ranking".
 
+    IMPORTANT: DO NOT USE THIS FUNCTION for field: {subject} course structure/curiculum
     Args:
         field (str): The keyword to look for (must be one of the allowed fields).
         text (str): The text to search through.
@@ -94,7 +95,7 @@ def extract_relevant_content(field: str, text: str) -> str:
 
     """
 
-    window_size = 5
+    window_size = 3
 
     sentences = re.split(r'(?<=[.!?])\s+', text)
     field_lower = field.lower()
