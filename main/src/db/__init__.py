@@ -19,6 +19,14 @@ def read_db() -> Dict[str, Any]:
             "raw_admissions_data": {},
             "structured_admissions_data": {},
             "program_comparison_reports": {},
+            "checklist_sessions": {},
+            "dynamic_checklists": {},
+            "cost_breakdown_sessions": {},
+            "cost_breakdown_results": {},
+            "timeline_sessions": {},
+            "timeline_results": {},
+
+
         }
         update_db(default)
         return default
