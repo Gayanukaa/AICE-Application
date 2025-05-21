@@ -10,3 +10,4 @@ requests
 fastapi
 uvicorn
 crewai[tools]
+nltk
