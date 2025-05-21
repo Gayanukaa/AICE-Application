@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 def render_sidebar():
     """Render only the User ID prompt."""
     st.sidebar.title("AICE")

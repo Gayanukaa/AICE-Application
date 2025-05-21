@@ -1,7 +1,7 @@
 import os
 
-from crewai import Crew, Process
 from agents import create_college_exploration_agents
+from crewai import Crew, Process
 from tasks import create_college_exploration_tasks
 
 

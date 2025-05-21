@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 def main():
     """Main demo app."""
     st.set_page_config(
@@ -14,7 +15,7 @@ def main():
                 "pages/0_Home.py",
                 title="Home",
                 icon="🏠",
-                default=True,    # landing page
+                default=True,  # landing page
             ),
             st.Page(
                 "pages/1_Essay_Writing.py",

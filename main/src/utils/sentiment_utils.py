@@ -1,15 +1,17 @@
+import os
+
 import httpx
-from fastapi import HTTPException
-from langchain_openai import ChatOpenAI, AzureChatOpenAI
 import nltk
 from crewai import LLM
 from dotenv import load_dotenv
-import os
+from fastapi import HTTPException
 from langchain.schema import HumanMessage
+from langchain_openai import AzureChatOpenAI, ChatOpenAI
 
 load_dotenv()
 
 nltk.download("vader_lexicon", quiet=True)
+
 
 def get_llm_instance() -> AzureChatOpenAI | ChatOpenAI:
     """

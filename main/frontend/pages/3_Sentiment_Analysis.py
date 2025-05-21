@@ -11,7 +11,7 @@ else:
     review = st.text_area(
         "Enter a single student review (we’ll find similar Reddit posts)",
         height=150,
-        placeholder="“Professors are great, but campus housing needs work.”"
+        placeholder="“Professors are great, but campus housing needs work.”",
     )
 
     if st.button("Analyze & Fetch Reddit"):

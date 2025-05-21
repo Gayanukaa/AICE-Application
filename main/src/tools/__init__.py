@@ -11,6 +11,7 @@ load_dotenv()
 
 search = GoogleSerperAPIWrapper()
 
+
 class SearchTool(BaseTool):
     name: str = "Search"
     description: str = (

@@ -1,7 +1,5 @@
 from typing import Any, Dict, List
 
-from crewai import Agent, Task
-from pydantic import BaseModel
 from config.report_paths import (
     ESSAY_OUTLINE_FILE,
     PROGRAM_COMPARISON_REPORT_FILE,
@@ -9,6 +7,8 @@ from config.report_paths import (
     REFINED_ESSAY_FILE,
     STRUCTURED_ADMISSIONS_DATA_FILE,
 )
+from crewai import Agent, Task
+from pydantic import BaseModel
 
 
 class EssayOutline(BaseModel):

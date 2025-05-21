@@ -1,13 +1,15 @@
 # frontend/components/result_display.py
 
 import time
+
 import streamlit as st
 from utils.api import (
-    get_essay_status,
     get_essay_result,
-    get_program_analysis_status,
+    get_essay_status,
     get_program_analysis_result,
+    get_program_analysis_status,
 )
+
 
 def display_essay_results(session_id: str, timeout: int = 60, interval: float = 2.0):
     """Poll with a spinner, then render results for an essay-writing session."""
@@ -61,9 +63,7 @@ def display_essay_results(session_id: str, timeout: int = 60, interval: float = 
 
 
 def display_program_analysis_results(
-    session_id: str,
-    timeout: int = 60,
-    interval: float = 2.0
+    session_id: str, timeout: int = 60, interval: float = 2.0
 ):
     """Poll with a spinner, then nicely render program-analysis outputs."""
     st.subheader("📊 Program Analysis Results")

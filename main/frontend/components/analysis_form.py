@@ -1,6 +1,7 @@
 import streamlit as st
 from utils.api import create_program_analysis_session
 
+
 def show_analysis_form(user_id: str):
     """Display the program-analysis form and return a new session_id (or None)."""
     st.header("Program Analysis")
@@ -10,11 +11,11 @@ def show_analysis_form(user_id: str):
 
     uni_input = st.text_area(
         "Universities (comma-separated)",
-        help="List the universities you want to compare."
+        help="List the universities you want to compare.",
     )
     criteria_input = st.text_input(
         "Comparison Criteria (comma-separated)",
-        help="E.g., cost, ranking, curriculum, scholarships."
+        help="E.g., cost, ranking, curriculum, scholarships.",
     )
 
     if st.button("Start Program Analysis"):
@@ -26,9 +27,7 @@ def show_analysis_form(user_id: str):
             return None
 
         session_id = create_program_analysis_session(
-            user_id=user_id,
-            university_list=universities,
-            comparison_criteria=criteria
+            user_id=user_id, university_list=universities, comparison_criteria=criteria
         )
         st.success(f"Program-analysis session started: **{session_id}**")
         return session_id

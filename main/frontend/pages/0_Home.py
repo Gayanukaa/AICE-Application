@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+
 import streamlit as st
 
 # --- Timeline data ---
@@ -9,7 +10,7 @@ timeline = [
     {"date": "2025-05-20", "event": "Agent Integration"},
     {"date": "2025-05-30", "event": "Backend MVP Complete"},
     {"date": "2025-06-01", "event": "Beta Release"},
-    {"date": None,        "event": "Production Launch (Upcoming)"},
+    {"date": None, "event": "Production Launch (Upcoming)"},
 ]
 
 today = datetime.today().strftime("%Y-%m-%d")
@@ -111,7 +112,11 @@ cols = st.columns(len(timeline))
 for idx, item in enumerate(timeline):
     with cols[idx]:
         date = item["date"]
-        color = "#4e79a7" if date == today else ("#4e79a7" if date and date < today else "#ccc")
+        color = (
+            "#4e79a7"
+            if date == today
+            else ("#4e79a7" if date and date < today else "#ccc")
+        )
         st.markdown(
             f"""
             <div style="
