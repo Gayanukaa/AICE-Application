@@ -26,6 +26,11 @@ def main():
                 title="Program Analysis",
                 icon="📊",
             ),
+            st.Page(
+                "pages/3_Sentiment_Analysis.py",
+                title="Sentiment Analysis",
+                icon="🕵️",
+            ),
         ]
     )
     pg.run()

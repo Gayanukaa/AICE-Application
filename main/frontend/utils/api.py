@@ -65,3 +65,18 @@ def get_program_analysis_result(session_id: str) -> dict:
     resp = httpx.get(f"{API_BASE_URL}/sessions/program-analysis/{session_id}/result")
     resp.raise_for_status()
     return resp.json()
+
+
+def sentiment_analysis(reviews: list[str]) -> dict:
+    """
+    POST /sentiment-analysis
+    Input: {"reviews": [...]}
+    Output: {"reddit_posts": [...], "summary": "..."}
+    """
+    resp = httpx.post(
+        f"{API_BASE_URL}/sentiment-analysis",
+        json={"reviews": reviews},
+        timeout=60.0,
+    )
+    resp.raise_for_status()
+    return resp.json()

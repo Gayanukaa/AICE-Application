@@ -1,11 +1,13 @@
-# app.py
-
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 import db
+from config.models import RedditPost, SentimentRequest, SentimentResponse
+from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from generate_run import generate_college_exploration_background
+from pydantic import BaseModel
+from utils.sentiment_utils import sentiment_reddit_summary
+
 
 app = FastAPI(
     title="AI College Exploration (AICE) API",
@@ -153,3 +155,21 @@ def get_program_analysis_result(session_id: str):
         "structured_admissions_data": structured,
         "program_comparison_report": report,
     }
+
+@app.post(
+    "/sentiment-analysis",
+    response_model=SentimentResponse,
+    summary="Fetch related Reddit posts & AI‐summarize sentiment",
+)
+async def sentiment_analysis(payload: SentimentRequest):
+    """
+    Input JSON:
+        { "reviews": ["Review text here"] }
+
+    Returns:
+        {
+          "reddit_posts": [ {"title": ..., "url": ...}, … ],
+          "summary": "3–4 sentence summary …"
+        }
+    """
+    return sentiment_reddit_summary(payload.reviews)
