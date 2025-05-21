@@ -2,7 +2,7 @@ import datetime
 import json
 import os
 import uuid
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 # Path to JSON‐backed datastore
 DB_FILENAME = os.path.join(os.path.dirname(__file__), "aice_db.json")
