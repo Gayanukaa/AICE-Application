@@ -9,7 +9,7 @@ from pydantic import Field
 load_dotenv()
 
 
-search = GoogleSerperAPIWrapper()
+search = GoogleSerperAPIWrapper(serper_api_key=os.getenv("SERPER_API_KEY"))
 
 class SearchTool(BaseTool):
     name: str = "Search"
