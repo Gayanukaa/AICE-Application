@@ -122,16 +122,13 @@ def create_college_exploration_tasks(
     if "uni_info_scraper_agent" in agents:
         t3 = Task(
             description=f"""
-            Scrape admissions data for the following universities:
+            Scrape admissions data from the following universities:
             {university_list}
 
-            Gather:
-            - Requirements
-            - Deadlines
-            - Fees
-            - Scholarships
+            Collect detailed information based on the following criteria:
+            {comparison_criteria}
             """,
-            expected_output="Raw JSON or HTML data for each university.",
+            expected_output="JSON containing raw scraped data for each university.",
             agent=agents["uni_info_scraper_agent"],
             output_file=_path(RAW_ADMISSIONS_DATA_FILE),
             output_json=RawAdmissionsData,
@@ -143,10 +140,10 @@ def create_college_exploration_tasks(
     if "uni_info_processor_agent" in agents and "scrape_admissions" in ctx:
         t4 = Task(
             description="""
-            Transform the raw admissions data from the previous task into a clean JSON schema
-            with fields: requirements, deadlines, fees, scholarships.
+            Process the raw admissions data obtained from the previous task and extract all relevant information 
+            according to the specified comparison criteria. Transform this data into a clean, well-structured JSON schema.
             """,
-            expected_output="Clean, structured admissions information as JSON.",
+            expected_output="Clean, structured JSON containing all admissions information based on the comparison criteria.",
             agent=agents["uni_info_processor_agent"],
             output_file=_path(STRUCTURED_ADMISSIONS_DATA_FILE),
             output_json=StructuredAdmissionsData,
@@ -159,19 +156,14 @@ def create_college_exploration_tasks(
     if "program_comparison_agent" in agents and "process_admissions" in ctx:
         t5 = Task(
             description=f"""
-            Compare the programs using the structured admissions data:
+            Compare the university programs using the structured admissions data,
+            focusing on the following criteria:
             - Comparison Criteria: {comparison_criteria}
-
-            Analyze differences in:
-            • Cost
-            • Ranking
-            • Curriculum structure
-            • Funding opportunities
             """,
-            expected_output="A comparison report summarizing key differences and recommendations.",
+            expected_output="A user-friendly and structured summary report highlighting the key differences between the programs.",
             agent=agents["program_comparison_agent"],
             output_file=_path(PROGRAM_COMPARISON_REPORT_FILE),
-            output_json=ProgramComparisonReport,
+            # output_json=ProgramComparisonReport,
             context=[ctx["process_admissions"]],
         )
         tasks.append(t5)
