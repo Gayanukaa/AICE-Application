@@ -31,52 +31,27 @@ search_uni = SerperDevTool()
 scrape_website = ScrapeWebsiteTool()
 
 @tool("fetch_university_admission_info")
-def fetch_university_admission_info(university_name: str, level: str, course: str, origin: str) -> dict:
+def fetch_university_admission_info(university_name: str, field: str, level: str) -> str:
     """
-    Fetches raw admission-related information for a given university and program by querying and scraping relevant webpages.
-
+    Retrieves specific admission-related information for a given university and level of study 
+    by scraping or querying relevant web sources.
 
     Args:
-        university_name (str): Name of the target university.
+        university_name (str): Name of the university to retrieve information from.
+        field (str): The specific admission-related detail to retrieve. 
+                     Possible values include:
+                        - "requirements"
+                        - "deadlines"
+                        - "fees"
+                        - "scholarships"
+                        - "university ranking"
+                        - "subject ranking"
+                        - "{subject} course structure"
         level (str): Level of study (e.g., "undergraduate", "postgraduate").
-        course (str): Academic program or field (e.g., "computer science", "business").
-        origin (str): Origin of the applicant (e.g., "international", "Sri Lankan").
 
     Returns:
-        dict: A dictionary containing raw text data for each of the following keys:
-            - "university": Name of the university.
-            - "requirements": Scraped content for entry requirements.
-            - "deadlines": Scraped content for application deadlines.
-            - "fees": Scraped content for tuition fees.
-            - "scholarships": Scraped content for scholarships and financial aid.
-            - "university ranking": Scraped content for the university’s overall QS/world ranking.
-            - "subject ranking": Scraped content for the course/subject's ranking.
-            - "course structure": Scraped content for the curriculum or program structure.
-
-
+        str: Extracted information related to the requested field for the given university and level of study.
     """
-    fields = {
-        "requirements": f"{university_name} {level} admission requirements for {course} for {origin} students.",
-        "deadlines": f"{university_name} {level} application deadlines for {course} for {origin} students.",
-        "fees": f"{university_name} {level} tuition fees for {course} for {origin} students.",
-        "scholarships": f"{university_name} {level} scholarships and grants for {course} for {origin} students.",
-        "university ranking": f"{university_name} latest qs ranking.",
-        "subject ranking": f"latest qs ranking for {course} in at {university_name}.",
-        "course structure": f"{university_name} latest {course}  curriculum structure."
-    }
-
-
-    results = {
-        "University": university_name,
-        "requirements": None,
-        "deadlines": None,
-        "fees": None,
-        "scholarships": None,
-        "university ranking": None,
-        "subject ranking": None,
-        "course structure": None
-
-    }
 
     def extract_main_links(data):
         links = []
@@ -84,30 +59,53 @@ def fetch_university_admission_info(university_name: str, level: str, course: st
             if 'link' in item:
                 links.append(item['link'])
         return links
+    
+    try:
+        response = search_uni.run(search_query=f"{university_name} {level} {field} site")
+        urls = extract_main_links(response)         #Extract main links from response
+
+        if not urls:
+            result = "No relevant URL found."
+
+        url = urls[0]           #Select the first link
+        
+        result = ScrapeWebsiteTool(website_url=url).run()
+
+    except Exception as e:
+            result = f"Error: {str(e)}"
+
+    return result
 
 
-    for field, query in fields.items():
-        try:
 
-            response = search_uni.run(search_query=query)
-            urls = extract_main_links(response)         #Extract main links from response
+@tool("extract_relavant_content")
+def extract_relevant_content(field: str, text: str) -> str:
+    """
+    Finds sentences containing a keyword in a text and returns those sentences with some surrounding context.  
+    Only the following fields can be used:  
+    "requirements", "deadlines", "fees", "scholarships", "university ranking", "subject ranking".
 
-            if not urls:
-                results[field] = "No relevant URL found."
-                continue
+    Args:
+        field (str): The keyword to look for (must be one of the allowed fields).
+        text (str): The text to search through.
+        
+    Returns:
+        str: Combined snippets of matched sentences with context.
 
-            url = urls[0]           #Select the first link
+    """
 
+    window_size = 5
 
-            if field == "course structure":
-                scraped_content =  ScrapeWebsiteTool(website_url=url).run()
-            else:
-                scraped_content = ScrapeWebsiteTool(website_url=url).run()
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    field_lower = field.lower()
+    indexes = [i for i, sentence in enumerate(sentences) if field_lower in sentence.lower()]
+    if not indexes:
+        return ""
+    snippets = []
+    for idx in indexes:
+        start = max(0, idx - window_size)
+        end = min(len(sentences), idx + window_size + 1)
+        snippet = ' '.join(sentences[start:end]).strip()
+        snippets.append(snippet)
 
-
-            results[field] = (f"url: {url} \n" + scraped_content) or "Result not found."
-
-        except Exception as e:
-            results[field] = f"Error: {str(e)}"
-
-    return results
+    return '\n\n'.join(snippets)
