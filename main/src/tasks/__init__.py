@@ -141,7 +141,7 @@ def create_college_exploration_tasks(
         t4 = Task(
             description="""
             Process the raw admissions data obtained from the previous task and extract all relevant information 
-            according to the specified comparison criteria. Transform this data into a clean, well-structured JSON schema.
+            according to the specified comparison criteria. Transform this data into a clean, well-structured data.
             """,
             expected_output="Clean, structured JSON containing all admissions information based on the comparison criteria.",
             agent=agents["uni_info_processor_agent"],
@@ -160,10 +160,10 @@ def create_college_exploration_tasks(
             focusing on the following criteria:
             - Comparison Criteria: {comparison_criteria}
             """,
-            expected_output="A user-friendly and structured summary report highlighting the key differences between the programs.",
+            expected_output="A user-friendly summary report highlighting the key differences between the programs. Give the output in a markdown schema",
             agent=agents["program_comparison_agent"],
             output_file=_path(PROGRAM_COMPARISON_REPORT_FILE),
-            # output_json=ProgramComparisonReport,
+            output_json=ProgramComparisonReport,
             context=[ctx["process_admissions"]],
         )
         tasks.append(t5)
