@@ -31,10 +31,10 @@ search_uni = SerperDevTool()
 scrape_website = ScrapeWebsiteTool()
 
 @tool("fetch_university_admission_info")
-def fetch_university_admission_info(university_name: str, field: str, level: str) -> str:
+def fetch_university_admission_info(university_name: str, field: str, level: str, course: str) -> str:
     """
     Retrieves specific admission-related information for a given university and level of study 
-    by scraping or querying relevant web sources.
+    by scraping university websites.
 
     Args:
         university_name (str): Name of the university to retrieve information from.
@@ -47,7 +47,9 @@ def fetch_university_admission_info(university_name: str, field: str, level: str
                         - "university ranking"
                         - "subject ranking"
                         - "{subject} course structure"
+                    Use synonyms when necessary
         level (str): Level of study (e.g., "undergraduate", "postgraduate").
+        course (str): Name of subject course/program
 
     Returns:
         str: Extracted information related to the requested field for the given university and level of study.
@@ -61,7 +63,7 @@ def fetch_university_admission_info(university_name: str, field: str, level: str
         return links
     
     try:
-        response = search_uni.run(search_query=f"{university_name} {level} {field} site")
+        response = search_uni.run(search_query=f"{university_name} {level} {course} {field} ")
         urls = extract_main_links(response)         #Extract main links from response
 
         if not urls:
@@ -78,35 +80,38 @@ def fetch_university_admission_info(university_name: str, field: str, level: str
 
 
 
-@tool("extract_relavant_content")
-def extract_relevant_content(field: str, text: str) -> str:
-    """
-    Finds sentences containing a keyword in a text and returns those sentences with some surrounding context.  
-    Only the following fields can be used:  
-    "requirements", "deadlines", "fees", "scholarships", "university ranking", "subject ranking".
+# @tool("extract_relavant_content")
+# def extract_relevant_content(field: str, text: str) -> dict:
+#     """
+#     Extract content relavant to the the specific field.  
+#     Only the following fields can be used:  
+#     "requirements", "deadlines", "fees", "scholarships", "university ranking", "subject ranking".
 
-    IMPORTANT: DO NOT USE THIS FUNCTION for field: {subject} course structure/curiculum
-    Args:
-        field (str): The keyword to look for (must be one of the allowed fields).
-        text (str): The text to search through.
+#     IMPORTANT: DO NOT USE THIS FUNCTION for field: {subject} course structure/curiculum
+#     Args:
+#         field (str): The keyword to look for (must be one of the allowed fields).
+#         text (str): The text to search through.
         
-    Returns:
-        str: Combined snippets of matched sentences with context.
+#     Returns:
+#         str: Combined snippets of matched sentences with context.
 
-    """
+#     """
 
-    window_size = 3
+#     window_size = 4
 
-    sentences = re.split(r'(?<=[.!?])\s+', text)
-    field_lower = field.lower()
-    indexes = [i for i, sentence in enumerate(sentences) if field_lower in sentence.lower()]
-    if not indexes:
-        return ""
-    snippets = []
-    for idx in indexes:
-        start = max(0, idx - window_size)
-        end = min(len(sentences), idx + window_size + 1)
-        snippet = ' '.join(sentences[start:end]).strip()
-        snippets.append(snippet)
+#     sentences = re.split(r'(?<=[.!?])\s+', text)
+#     field_lower = field.lower()
+#     indexes = [i for i, sentence in enumerate(sentences) if field_lower in sentence.lower()]
+#     if not indexes:
+#         return ""
+#     snippets = []
+#     for idx in indexes:
+#         start = max(0, idx - window_size)
+#         end = min(len(sentences), idx + window_size + 1)
+#         snippet = ' '.join(sentences[start:end]).strip()
+#         snippets.append(snippet)
 
-    return '\n\n'.join(snippets)
+#     return {field: '\n\n'.join(snippets)}
+
+
+
