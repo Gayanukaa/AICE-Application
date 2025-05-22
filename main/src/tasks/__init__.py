@@ -152,6 +152,7 @@ def create_college_exploration_tasks(
         tasks.append(t4)
         ctx["process_admissions"] = t4
 
+
     # Task 5: Compare programs
     if "program_comparison_agent" in agents and "process_admissions" in ctx:
         t5 = Task(
