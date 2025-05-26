@@ -1,12 +1,13 @@
-# app.py
-
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 import db
+from config.models import RedditPost, SentimentRequest, SentimentResponse
+from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from generate_run import generate_college_exploration_background
 from generate_run import generate_application_planning_background
+from pydantic import BaseModel
+from utils.sentiment_utils import sentiment_reddit_summary
 
 app = FastAPI(
     title="AI College Exploration (AICE) API",
@@ -23,11 +24,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/sessions/essay")
-def start_essay_session(
-    payload: Dict[str, Any],
-    background_tasks: BackgroundTasks
-):
+def start_essay_session(payload: Dict[str, Any], background_tasks: BackgroundTasks):
     """
     Start an essay-writing session.
     Expects JSON with:
@@ -97,10 +96,7 @@ def get_essay_result(session_id: str):
 
 
 @app.post("/sessions/program-analysis")
-def start_program_analysis(
-    payload: Dict[str, Any],
-    background_tasks: BackgroundTasks
-):
+def start_program_analysis(payload: Dict[str, Any], background_tasks: BackgroundTasks):
     """
     Start a program-analysis session.
     Expects JSON with:
@@ -114,10 +110,16 @@ def start_program_analysis(
     university_list = payload.get("university_list")
     comparison_criteria = payload.get("comparison_criteria")
 
-    if not user_id or not isinstance(university_list, list) or not isinstance(comparison_criteria, list):
+    if (
+        not user_id
+        or not isinstance(university_list, list)
+        or not isinstance(comparison_criteria, list)
+    ):
         raise HTTPException(status_code=400, detail="Missing or invalid fields")
 
-    session_id = db.create_program_analysis_session(user_id, university_list, comparison_criteria)
+    session_id = db.create_program_analysis_session(
+        user_id, university_list, comparison_criteria
+    )
 
     background_tasks.add_task(
         generate_college_exploration_background,
@@ -354,3 +356,22 @@ def get_timeline_result(session_id: str):
         "deadlines": deadlines,
         "timeline": timeline,
     }
+
+
+@app.post(
+    "/sentiment-analysis",
+    response_model=SentimentResponse,
+    summary="Fetch related Reddit posts & AI‐summarize sentiment",
+)
+async def sentiment_analysis(payload: SentimentRequest):
+    """
+    Input JSON:
+        { "reviews": ["Review text here"] }
+
+    Returns:
+        {
+          "reddit_posts": [ {"title": ..., "url": ...}, … ],
+          "summary": "3–4 sentence summary …"
+        }
+    """
+    return sentiment_reddit_summary(payload.reviews)

@@ -1,7 +1,10 @@
 import httpx
 from utils.constants import API_BASE_URL
 
-def create_essay_session(user_id: str, essay_text: str, target_university: str, style_guidelines: str) -> str:
+
+def create_essay_session(
+    user_id: str, essay_text: str, target_university: str, style_guidelines: str
+) -> str:
     """
     POST /sessions/essay
     Returns the new session_id.
@@ -16,6 +19,7 @@ def create_essay_session(user_id: str, essay_text: str, target_university: str, 
     resp.raise_for_status()
     return resp.json()["session_id"]
 
+
 def get_essay_status(session_id: str) -> dict:
     """
     GET /sessions/essay/{session_id}/status
@@ -24,6 +28,7 @@ def get_essay_status(session_id: str) -> dict:
     resp = httpx.get(f"{API_BASE_URL}/sessions/essay/{session_id}/status")
     resp.raise_for_status()
     return resp.json()
+
 
 def get_essay_result(session_id: str) -> dict:
     """
@@ -34,7 +39,10 @@ def get_essay_result(session_id: str) -> dict:
     resp.raise_for_status()
     return resp.json()
 
-def create_program_analysis_session(user_id: str, university_list: list, comparison_criteria: list) -> str:
+
+def create_program_analysis_session(
+    user_id: str, university_list: list, comparison_criteria: list
+) -> str:
     """
     POST /sessions/program-analysis
     Returns the new session_id.
@@ -48,6 +56,7 @@ def create_program_analysis_session(user_id: str, university_list: list, compari
     resp.raise_for_status()
     return resp.json()["session_id"]
 
+
 def get_program_analysis_status(session_id: str) -> dict:
     """
     GET /sessions/program-analysis/{session_id}/status
@@ -57,11 +66,27 @@ def get_program_analysis_status(session_id: str) -> dict:
     resp.raise_for_status()
     return resp.json()
 
+
 def get_program_analysis_result(session_id: str) -> dict:
     """
     GET /sessions/program-analysis/{session_id}/result
     Returns {"raw_admissions_data": ..., "structured_admissions_data": ..., "program_comparison_report": ...}.
     """
     resp = httpx.get(f"{API_BASE_URL}/sessions/program-analysis/{session_id}/result")
+    resp.raise_for_status()
+    return resp.json()
+
+
+def sentiment_analysis(reviews: list[str]) -> dict:
+    """
+    POST /sentiment-analysis
+    Input: {"reviews": [...]}
+    Output: {"reddit_posts": [...], "summary": "..."}
+    """
+    resp = httpx.post(
+        f"{API_BASE_URL}/sentiment-analysis",
+        json={"reviews": reviews},
+        timeout=60.0,
+    )
     resp.raise_for_status()
     return resp.json()

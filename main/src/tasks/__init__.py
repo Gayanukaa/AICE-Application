@@ -14,6 +14,8 @@ from config.report_paths import (
     DEADLINES_FILE,
     TIMELINE_FILE,
 )
+from crewai import Agent, Task
+from pydantic import BaseModel
 
 
 class EssayOutline(BaseModel):

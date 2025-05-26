@@ -1,8 +1,8 @@
 import os
 from typing import List, Tuple
 
-from crewai import Crew, Process
 from agents import create_college_exploration_agents, create_university_planning_agents
+from crewai import Crew, Process
 from tasks import create_college_exploration_tasks, create_university_planning_tasks
 
 

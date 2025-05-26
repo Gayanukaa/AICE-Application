@@ -1,7 +1,7 @@
 import streamlit as st
-from components.sidebar import render_sidebar
 from components.analysis_form import show_analysis_form
 from components.result_display import display_program_analysis_results
+from components.sidebar import render_sidebar
 
 # Ask for User ID in the sidebar
 user_id = render_sidebar()
