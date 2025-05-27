@@ -92,79 +92,12 @@ def display_program_analysis_results(
     # --- Fetch results ---
     res = get_program_analysis_result(session_id)
 
-    # 1. Raw Admissions Data
-    st.markdown("### 1. Raw Admissions Data")
-    raw = res.get("raw_admissions_data", {})
-    # some payloads wrap under "raw_data" key
-    raw = raw.get("raw_data", raw)
-    for uni, uni_data in raw.items():
-        st.markdown(f"**{uni}**")
-        for category, details in uni_data.items():
-            st.markdown(f"*{category}*")
-            if isinstance(details, dict):
-                for subcat, items in details.items():
-                    st.markdown(f"    **{subcat}**")
-                    if isinstance(items, list):
-                        for item in items:
-                            st.markdown(f"        - {item}")
-                    elif isinstance(items, dict):
-                        for k, v in items.items():
-                            st.markdown(f"        - {k}: {v}")
-                    else:
-                        st.markdown(f"        - {items}")
-            elif isinstance(details, list):
-                for item in details:
-                    st.markdown(f"    - {item}")
-            else:
-                st.markdown(f"    - {details}")
-        st.write("")
-
-    # 2. Structured Admissions Data
-    st.markdown("### 2. Structured Admissions Data")
-    structured = res.get("structured_admissions_data", {})
-    for uni, uni_data in structured.items():
-        st.markdown(f"**{uni}**")
-        if isinstance(uni_data, dict):
-            for field, val in uni_data.items():
-                st.markdown(f"*{field}*")
-                if isinstance(val, list):
-                    for item in val:
-                        st.markdown(f"    - {item}")
-                elif isinstance(val, dict):
-                    for k, v in val.items():
-                        if isinstance(v, list):
-                            st.markdown(f"    **{k}**")
-                            for ii in v:
-                                st.markdown(f"        - {ii}")
-                        else:
-                            st.markdown(f"    - {k}: {v}")
-                else:
-                    st.markdown(f"    - {val}")
-        else:
-            st.markdown(f"- {uni_data}")
-        st.write("")
-
-    # 3. Program Comparison Report
-    st.markdown("### 3. Program Comparison Report")
-    report = res.get("comparison_report", {})
+    report = res.get("program_comparison_report", {})
     if isinstance(report, dict):
-        for section, content in report.items():
-            st.markdown(f"**{section}**")
-            if isinstance(content, dict):
-                for uni, metrics in content.items():
-                    st.markdown(f"    *{uni}*")
-                    if isinstance(metrics, dict):
-                        for metric, val in metrics.items():
-                            if isinstance(val, list):
-                                st.markdown(f"        **{metric}**")
-                                for item in val:
-                                    st.markdown(f"            - {item}")
-                            else:
-                                st.markdown(f"        - {metric}: {val}")
-                    else:
-                        st.markdown(f"        - {metrics}")
-            else:
-                st.markdown(f"- {content}")
-            st.write("")
+        lines = report["comparison_report"].strip().splitlines()
+        markdown_content = '\n'.join(lines[1:])
+        st.markdown(markdown_content)
     else:
         st.error(f"⚠️ Invalid comparison report: {report}")
+        
+  

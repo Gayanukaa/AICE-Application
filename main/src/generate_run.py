@@ -78,21 +78,16 @@ def generate_college_exploration_background(
             for task in tasks:
                 desc = task.description.strip().lower()
                 raw = task.output.raw
-                if "scrape admissions" in desc:
+                if task.agent.role == "University Info Scraper Agent":
                     raw_data = json.loads(raw) if _is_json(raw) else raw
-                elif "transform the raw" in desc or "structure" in desc:
+                
+                elif task.agent.role == "University Info Processor Agent":
                     structured = json.loads(raw) if _is_json(raw) else raw
-                elif "compare" in desc:
-                    report = json.loads(raw) if _is_json(raw) else raw
-                elif task.agent.role == "Program Comparison Agent":
-                    raw = task.output.raw
-                    data = json.loads(raw) if _is_json(raw) else raw
 
-                    if isinstance(data, dict) and "comparison_report" in data:
-                        report = data["comparison_report"]
-                    else:
-                        report = data
+                else:
+                    report = {"comparison_report": raw}
                     break
+        
 
             # save each stage
             db.save_raw_admissions_data(session_id, raw_data)

@@ -196,16 +196,13 @@ def create_college_exploration_tasks(
     if "uni_info_scraper_agent" in agents:
         t3 = Task(
             description=f"""
-            Scrape admissions data for the following universities:
+            Scrape admissions data from the following universities:
             {university_list}
 
-            Gather:
-            - Requirements
-            - Deadlines
-            - Fees
-            - Scholarships
+            Collect detailed information based on the following criteria:
+            {comparison_criteria}
             """,
-            expected_output="Raw JSON or HTML data for each university.",
+            expected_output="JSON containing raw scraped data for each university.",
             agent=agents["uni_info_scraper_agent"],
             output_file=_path(RAW_ADMISSIONS_DATA_FILE),
             output_json=RawAdmissionsData,
@@ -217,10 +214,10 @@ def create_college_exploration_tasks(
     if "uni_info_processor_agent" in agents and "scrape_admissions" in ctx:
         t4 = Task(
             description="""
-            Transform the raw admissions data from the previous task into a clean JSON schema
-            with fields: requirements, deadlines, fees, scholarships.
+            Process the raw admissions data obtained from the previous task and extract all relevant information 
+            according to the specified comparison criteria. Transform this data into a clean, well-structured data.
             """,
-            expected_output="Clean, structured admissions information as JSON.",
+            expected_output="Clean, structured JSON containing all admissions information based on the comparison criteria.",
             agent=agents["uni_info_processor_agent"],
             output_file=_path(STRUCTURED_ADMISSIONS_DATA_FILE),
             output_json=StructuredAdmissionsData,
@@ -229,179 +226,25 @@ def create_college_exploration_tasks(
         tasks.append(t4)
         ctx["process_admissions"] = t4
 
+
     # Task 5: Compare programs
     if "program_comparison_agent" in agents and "process_admissions" in ctx:
         t5 = Task(
             description=f"""
-            Compare the programs using the structured admissions data:
+            Compare the university programs using the structured admissions data,
+            focusing on the following criteria:
             - Comparison Criteria: {comparison_criteria}
 
-            Analyze differences in:
-            • Cost
-            • Ranking
-            • Curriculum structure
-            • Funding opportunities
+            If suitable information for the {comparison_criteria} is not available, indicate that the data could not be found.
             """,
-            expected_output="A comparison report summarizing key differences and recommendations.",
+            expected_output="A user-friendly summary report highlighting the key differences between the programs. Present the output in the specified markdown format",
+    
             agent=agents["program_comparison_agent"],
             output_file=_path(PROGRAM_COMPARISON_REPORT_FILE),
-            output_json=ProgramComparisonReport,
+            # output_json=ProgramComparisonReport,
             context=[ctx["process_admissions"]],
         )
         tasks.append(t5)
         ctx["compare_programs"] = t5
-
-    return tasks
-
-
-def create_university_planning_tasks(
-    session_id: str,
-    nationality: str,
-    program_level: str,
-    university_list: List[str],
-    user_budget: float,
-    destination: str,
-    applicant_availability: Optional[str],
-    agents: Dict[str, Agent],
-) -> List[Task]:
-    """Build tasks for checklist generation, cost planning, and timeline planning flows."""
-
-    def _path(template: str) -> str:
-        return template.format(session_id=session_id)
-
-    tasks: List[Task] = []
-    ctx: Dict[str, Task] = {}
-
-    if "dynamic_checklist_agent" in agents:
-        t1 = Task(
-            description=f"""
-            Build a tailored document checklist for each university/course
-            considering the applicant’s nationality and program level:
-
-            - Applicant nationality: {nationality}
-            - Program level: {program_level}
-            - Universities: {university_list}
-            """,
-            expected_output="""
-            A JSON array of checklists, one per university, each item:
-            - document: string
-            - required: bool
-            - notes: optional string
-            """,
-            agent=agents["dynamic_checklist_agent"],
-            output_file=_path(DYNAMIC_CHECKLIST_FILE),
-            output_json=Checklist,
-        )
-        tasks.append(t1)
-        ctx["checklist"] = t1
-
-    # --- Feature 5: Personalized Cost Breakdown ---
-
-    # Task 2: Fetch raw university fee data
-    if "fee_retriever_agent" in agents:
-        t2 = Task(
-            description=f"""
-            Retrieve tuition fees for the following universities and program level:
-            - Universities: {university_list}
-            - Program level: {program_level}
-            """,
-            expected_output="""
-            A JSON object per university:
-            - university: string
-            - program_level: string
-            - tuition_fee: number
-            """,
-            agent=agents["fee_retriever_agent"],
-            output_file=_path(RAW_FEES_FILE),
-            output_json=RawFees,
-        )
-        tasks.append(t2)
-        ctx["fees"] = t2
-
-    # Task 3: Generate comprehensive cost breakdown
-    if "cost_breakdown_generator_agent" in agents and "fees" in ctx:
-        t3 = Task(
-            description=f"""
-            Create a detailed cost breakdown using:
-            - User budget: {user_budget}
-            - Destination: {destination}
-            - Tuition fee data: {{{{steps.fees.output}}}}
-
-            Include line items for:
-            • Accommodation
-            • Living expenses (food, transport, utilities)
-            • Visa & insurance
-            • Travel & misc.
-            """,
-            expected_output="""
-            A JSON object:
-            - total_budget: number
-            - breakdown: list of { category: string, cost: number }
-            """,
-            agent=agents["cost_breakdown_generator_agent"],
-            output_file=_path(COST_BREAKDOWN_FILE),
-            output_json=CostBreakdown,
-            context=[ctx["fees"]],
-        )
-        tasks.append(t3)
-        ctx["costs"] = t3
-
-    # --- Feature 6: Interactive Application Timeline Planner ---
-
-    # Task 4: Extract all relevant deadlines
-    if "deadline_extractor_agent" in agents:
-        t4 = Task(
-            description=f"""
-            Scrape and consolidate application deadlines for:
-            - Universities: {university_list}
-            - Program level: {program_level}
-
-            Extract:
-            • Application start/end
-            • Essay submission
-            • Interview windows
-            • Scholarship deadlines
-            """,
-            expected_output="""
-            A JSON object:
-            - application_start: date
-            - application_end: date
-            - essay_deadline: date
-            - interview_periods: list of { start: date, end: date }
-            - scholarship_deadlines: list of dates
-            """,
-            agent=agents["deadline_extractor_agent"],
-            output_file=_path(DEADLINES_FILE),
-            output_json=DeadlineData,
-        )
-        tasks.append(t4)
-        ctx["deadlines"] = t4
-
-    # Task 5: Generate the personalized timeline
-    if "timeline_generator_agent" in agents and "deadlines" in ctx:
-        t5 = Task(
-            description=f"""
-            Build an interactive application timeline using:
-            - Extracted deadlines: {{{{steps.deadlines.output}}}}
-            - Applicant availability preferences: {applicant_availability or "none"}
-
-            Suggest optimal slots for:
-            • Essay drafts & revisions
-            • Document uploads
-            • Interview prep
-            • Scholarship applications
-            """,
-            expected_output="""
-            A JSON timeline:
-            - events: list of { date: date, task: string }
-            - suggestions: list of { task: string, recommended_date: date }
-            """,
-            agent=agents["timeline_generator_agent"],
-            output_file=_path(TIMELINE_FILE),
-            output_json=ApplicationTimeline,
-            context=[ctx["deadlines"]],
-        )
-        tasks.append(t5)
-        ctx["timeline"] = t5
 
     return tasks
