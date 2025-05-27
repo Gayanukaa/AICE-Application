@@ -7,6 +7,7 @@ from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from tools import ( 
     SearchTool,
     # extract_relevant_content,
+    file_read_tool,
     fetch_university_admission_info,
    
 )
@@ -142,6 +143,7 @@ def create_college_exploration_agents(
         goal=(
             "Analyze and compare university programs using the provided {structured_data},"
             "and generate a detailed, user-friendly summary based on the specified {comparison_criteria}."
+            "Use all available to tools to provide an answer"
             
         ),
         backstory=(
@@ -151,7 +153,7 @@ def create_college_exploration_agents(
         ),
         allow_delegation=False,
         llm=get_llm(program_comparison_model, program_comparison_temperature),
-        # tools=[compare_programs],
+        tools=[file_read_tool],
     )
 
     return {
