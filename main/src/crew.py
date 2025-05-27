@@ -1,8 +1,9 @@
 import os
+from typing import List, Tuple
 
-from agents import create_college_exploration_agents
+from agents import create_college_exploration_agents, create_university_planning_agents
 from crewai import Crew, Process
-from tasks import create_college_exploration_tasks
+from tasks import create_college_exploration_tasks, create_university_planning_tasks
 
 
 def create_essay_writing_crew(
@@ -98,6 +99,154 @@ def create_program_analysis_crew(
     crew = Crew(
         agents=list(selected_agents.values()),
         tasks=list(tasks),
+        verbose=True,
+        Process=Process.sequential,
+        output_log_file=log_file,
+        full_output=True,
+    )
+    result = crew.kickoff()
+    return result, tasks
+
+
+def create_dynamic_checklist_crew(
+    session_id: str,
+    nationality: str,
+    program_level: str,
+    university_list: List[str],
+) -> Tuple:
+    """
+    Create and run a Crew for the Dynamic Application Checklist flow (Feature 4).
+
+    This will invoke:
+      1. dynamic_checklist_agent
+    """
+    # prepare log directory
+    log_dir = f"data/logs/{session_id}/checklist"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "crew.log")
+
+    # instantiate all planning agents, then pick only the checklist one
+    agents = create_university_planning_agents(session_id)
+    selected_agents = {
+        name: agents[name] for name in ("dynamic_checklist_agent",) if name in agents
+    }
+
+    # build only the checklist tasks
+    tasks = create_university_planning_tasks(
+        session_id=session_id,
+        nationality=nationality,
+        program_level=program_level,
+        university_list=university_list,
+        user_budget=0.0,  # unused in this flow
+        destination="",  # unused in this flow
+        applicant_availability=None,  # unused in this flow
+        agents=selected_agents,
+    )
+
+    crew = Crew(
+        agents=list(selected_agents.values()),
+        tasks=tasks,
+        verbose=True,
+        Process=Process.sequential,
+        output_log_file=log_file,
+        full_output=True,
+    )
+    result = crew.kickoff()
+    return result, tasks
+
+
+def cost_breakdown_crew(
+    session_id: str,
+    university_list: List[str],
+    program_level: str,
+    user_budget: float,
+    destination: str,
+) -> Tuple:
+    """
+    Create and run a Crew for the Personalized Cost Breakdown flow (Feature 5).
+
+    This will invoke:
+      1. fee_retriever_agent
+      2. cost_breakdown_generator_agent
+    """
+    # prepare log directory
+    log_dir = f"data/logs/{session_id}/cost_breakdown"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "crew.log")
+
+    # instantiate all planning agents, then pick only the cost ones
+    agents = create_university_planning_agents(session_id)
+    selected_agents = {
+        name: agents[name]
+        for name in ("fee_retriever_agent", "cost_breakdown_generator_agent")
+        if name in agents
+    }
+
+    # build only the cost-breakdown tasks
+    tasks = create_university_planning_tasks(
+        session_id=session_id,
+        nationality="",  # unused in this flow
+        program_level=program_level,
+        university_list=university_list,
+        user_budget=user_budget,
+        destination=destination,
+        applicant_availability=None,  # unused in this flow
+        agents=selected_agents,
+    )
+
+    crew = Crew(
+        agents=list(selected_agents.values()),
+        tasks=tasks,
+        verbose=True,
+        Process=Process.sequential,
+        output_log_file=log_file,
+        full_output=True,
+    )
+    result = crew.kickoff()
+    return result, tasks
+
+
+def create_timeline_generator_crew(
+    session_id: str,
+    university_list: List[str],
+    program_level: str,
+    applicant_availability: str = None,
+) -> Tuple:
+    """
+    Create and run a Crew for the Interactive Application Timeline flow (Feature 6).
+
+    This will invoke:
+      1. deadline_extractor_agent
+      2. timeline_generator_agent
+    """
+    # prepare log directory
+    log_dir = f"data/logs/{session_id}/timeline_planner"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "crew.log")
+
+    # instantiate all planning agents, then pick only the timeline ones
+    agents = create_university_planning_agents(session_id)
+    selected_agents = {
+        name: agents[name]
+        for name in ("deadline_extractor_agent", "timeline_generator_agent")
+        if name in agents
+    }
+
+    # build only the timeline tasks
+    tasks = create_university_planning_tasks(
+        session_id=session_id,
+        nationality="",  # unused in this flow
+        program_level=program_level,
+        university_list=university_list,
+        user_budget=0.0,  # unused in this flow
+        destination="",  # unused in this flow
+        applicant_availability=applicant_availability,
+        agents=selected_agents,
+    )
+
+    crew = Crew(
+        agents=list(selected_agents.values()),
+        tasks=tasks,
         verbose=True,
         Process=Process.sequential,
         output_log_file=log_file,

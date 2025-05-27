@@ -10,7 +10,7 @@ from crewai_tools import (SerperDevTool, ScrapeWebsiteTool, FileReadTool)
 load_dotenv()
 
 
-search = GoogleSerperAPIWrapper()
+search = GoogleSerperAPIWrapper(serper_api_key=os.getenv("SERPER_API_KEY"))
 
 
 class SearchTool(BaseTool):

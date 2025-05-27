@@ -21,10 +21,9 @@ def get_llm_instance() -> AzureChatOpenAI | ChatOpenAI:
     """
     if os.getenv("USE_AZURE_OPENAI", "false").lower() == "true":
         return AzureChatOpenAI(
-            deployment_name=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
+            azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
             azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-            # azure_api_version=os.getenv("OPENAI_API_VERSION"),
-            openai_api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+            openai_api_key=os.getenv("AZURE_OPENAI_API_KEY"),  # type: ignore
             temperature=0.1,
         )
     else:
@@ -84,7 +83,7 @@ def sentiment_reddit_summary(reviews: list[str]) -> dict:
 
     # 3) Call the correct LLM client
     llm = get_llm_instance()
-    response = llm([HumanMessage(content=prompt)])
+    response = llm.invoke([HumanMessage(content=prompt)])
     summary = response.content.strip()
 
     return {"reddit_posts": posts, "summary": summary}
