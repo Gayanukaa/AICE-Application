@@ -160,11 +160,14 @@ def create_college_exploration_tasks(
             Compare the university programs using the structured admissions data,
             focusing on the following criteria:
             - Comparison Criteria: {comparison_criteria}
+
+            If suitable information for the {comparison_criteria} is not available, indicate that the data could not be found.
             """,
-            expected_output="A user-friendly summary report highlighting the key differences between the programs. Give the output in a markdown schema",
+            expected_output="A user-friendly summary report highlighting the key differences between the programs. Present the output in the specified markdown format",
+    
             agent=agents["program_comparison_agent"],
             output_file=_path(PROGRAM_COMPARISON_REPORT_FILE),
-            output_json=ProgramComparisonReport,
+            # output_json=ProgramComparisonReport,
             context=[ctx["process_admissions"]],
         )
         tasks.append(t5)
