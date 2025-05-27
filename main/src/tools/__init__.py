@@ -1,11 +1,12 @@
 import os
 import re
+
 from crewai.tools import BaseTool, tool
+from crewai_tools import FileReadTool, ScrapeWebsiteTool, SerperDevTool
 from dotenv import load_dotenv
 from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_openai import AzureChatOpenAI
 from pydantic import Field
-from crewai_tools import (SerperDevTool, ScrapeWebsiteTool, FileReadTool)
 
 load_dotenv()
 
@@ -27,19 +28,23 @@ class SearchTool(BaseTool):
         except Exception as e:
             return f"Error performing search: {str(e)}"
 
-file_read_tool = FileReadTool(file_path='./main/src/tools/Comp_Instructions.md')
+
+file_read_tool = FileReadTool(file_path="./main/src/tools/Comp_Instructions.md")
 search_uni = SerperDevTool()
 scrape_website = ScrapeWebsiteTool()
 
+
 @tool("fetch_university_admission_info")
-def fetch_university_admission_info(university_name: str, field: str, level: str, course: str) -> str:
+def fetch_university_admission_info(
+    university_name: str, field: str, level: str, course: str
+) -> str:
     """
-    Retrieves specific admission-related information for a given university and level of study 
+    Retrieves specific admission-related information for a given university and level of study
     by scraping university websites.
 
     Args:
         university_name (str): Name of the university to retrieve information from.
-        field (str): The specific admission-related detail to retrieve. 
+        field (str): The specific admission-related detail to retrieve.
                      Possible values include:
                         - "entry requirements"
                         - "admission deadlines"
@@ -58,39 +63,42 @@ def fetch_university_admission_info(university_name: str, field: str, level: str
 
     def extract_main_links(data):
         links = []
-        for item in data.get('organic', []):
-            if 'link' in item:
-                links.append(item['link'])
+        for item in data.get("organic", []):
+            if "link" in item:
+                links.append(item["link"])
         return links
-    
+
     try:
-        response = search_uni.run(search_query=f"{field} for {level} {course} at {university_name} ")
-        urls = extract_main_links(response)         #Extract main links from response
+        response = search_uni.run(
+            search_query=f"{field} for {level} {course} at {university_name} "
+        )
+        urls = extract_main_links(response)  # Extract main links from response
 
         if not urls:
             result = "No relevant URL found."
 
-        url = urls[0]           #Select the first link
-        
+        url = urls[0]  # Select the first link
+
         result = ScrapeWebsiteTool(website_url=url).run()
 
     except Exception as e:
-            result = f"Error: {str(e)}"
+        result = f"Error: {str(e)}"
 
     return result
+
 
 # @tool("extract_relavant_content")
 # def extract_relevant_content(field: str, text: str) -> dict:
 #     """
-#     Extract content relavant to the the specific field.  
-#     Only the following fields can be used:  
+#     Extract content relavant to the the specific field.
+#     Only the following fields can be used:
 #     "requirements", "deadlines", "fees", "scholarships", "university ranking", "subject ranking".
 
 #     IMPORTANT: DO NOT USE THIS FUNCTION for field: {subject} course structure/curiculum
 #     Args:
 #         field (str): The keyword to look for (must be one of the allowed fields).
 #         text (str): The text to search through.
-        
+
 #     Returns:
 #         str: Combined snippets of matched sentences with context.
 
@@ -111,6 +119,3 @@ def fetch_university_admission_info(university_name: str, field: str, level: str
 #         snippets.append(snippet)
 
 #     return {field: '\n\n'.join(snippets)}
-
-
-

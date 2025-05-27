@@ -214,7 +214,7 @@ def create_college_exploration_tasks(
     if "uni_info_processor_agent" in agents and "scrape_admissions" in ctx:
         t4 = Task(
             description="""
-            Process the raw admissions data obtained from the previous task and extract all relevant information 
+            Process the raw admissions data obtained from the previous task and extract all relevant information
             according to the specified comparison criteria. Transform this data into a clean, well-structured data.
             """,
             expected_output="Clean, structured JSON containing all admissions information based on the comparison criteria.",
@@ -225,7 +225,6 @@ def create_college_exploration_tasks(
         )
         tasks.append(t4)
         ctx["process_admissions"] = t4
-
 
     # Task 5: Compare programs
     if "program_comparison_agent" in agents and "process_admissions" in ctx:
@@ -238,7 +237,6 @@ def create_college_exploration_tasks(
             If suitable information for the {comparison_criteria} is not available, indicate that the data could not be found.
             """,
             expected_output="A user-friendly summary report highlighting the key differences between the programs. Present the output in the specified markdown format",
-    
             agent=agents["program_comparison_agent"],
             output_file=_path(PROGRAM_COMPARISON_REPORT_FILE),
             # output_json=ProgramComparisonReport,

@@ -13,16 +13,16 @@ For each university program, present information using the format below:
 
 ### Example:
 ## Imperial College London: Computing (BEng)
-- **Tuition Fees (Domestic)**: $20,000  
-- **Tuition Fees (International)**: $50,000  
-- **Course Structure**:  
-  - *Year 1*: Programming, Discrete Mathematics, Computer Systems  
-  - *Year 2*: Algorithms, Databases, Software Engineering  
-  - *Year 3*: AI, Machine Learning, Final Project  
-- **Entry Requirements**: A-levels (AAA) or equivalent  
-- **Program Duration**: 3 years  
-- **Location**: London, UK  
-- **Accreditation**: ABET  
+- **Tuition Fees (Domestic)**: $20,000
+- **Tuition Fees (International)**: $50,000
+- **Course Structure**:
+  - *Year 1*: Programming, Discrete Mathematics, Computer Systems
+  - *Year 2*: Algorithms, Databases, Software Engineering
+  - *Year 3*: AI, Machine Learning, Final Project
+- **Entry Requirements**: A-levels (AAA) or equivalent
+- **Program Duration**: 3 years
+- **Location**: London, UK
+- **Accreditation**: ABET
 
 
 Repeat this structure for each university and program being compared.

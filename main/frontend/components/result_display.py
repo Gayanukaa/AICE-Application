@@ -95,9 +95,7 @@ def display_program_analysis_results(
     report = res.get("program_comparison_report", {})
     if isinstance(report, dict):
         lines = report["comparison_report"].strip().splitlines()
-        markdown_content = '\n'.join(lines[1:])
+        markdown_content = "\n".join(lines[1:])
         st.markdown(markdown_content)
     else:
         st.error(f"⚠️ Invalid comparison report: {report}")
-        
-  

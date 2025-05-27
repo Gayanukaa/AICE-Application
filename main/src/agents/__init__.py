@@ -4,12 +4,10 @@ from typing import Union
 from crewai import LLM, Agent
 from dotenv import load_dotenv
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
-from tools import ( 
+from tools import (  # extract_relevant_content,
     SearchTool,
-    # extract_relevant_content,
-    file_read_tool,
     fetch_university_admission_info,
-   
+    file_read_tool,
 )
 from utils import get_config_value, load_config
 
@@ -107,17 +105,17 @@ def create_college_exploration_agents(
     uni_info_scraper_agent = Agent(
         role="University Info Scraper Agent",
         goal=(
-           "Accurately extract up-to-date admissions data based on {comparison_criteria} for each university listed in {university_list}," 
+            "Accurately extract up-to-date admissions data based on {comparison_criteria} for each university listed in {university_list},"
             "using web scraping and other credible data sources."
         ),
         backstory=(
-            "You are a diligent and detail-oriented data acquisition specialist with expertise in web scraping." 
-            "Your mission is to ensure that all retrieved admissions data is current, relevant, and comprehensive," 
+            "You are a diligent and detail-oriented data acquisition specialist with expertise in web scraping."
+            "Your mission is to ensure that all retrieved admissions data is current, relevant, and comprehensive,"
             "forming the foundation for downstream processing and comparison."
         ),
         allow_delegation=False,
         llm=get_llm(uni_info_scraper_model, uni_info_scraper_temperature),
-        tools=[fetch_university_admission_info ],
+        tools=[fetch_university_admission_info],
     )
 
     uni_info_processor_agent = Agent(
@@ -125,14 +123,12 @@ def create_college_exploration_agents(
         goal=(
             "Extract and standardize the essential admissions data from {raw_data} based on the specified {comparison_criteria},"
             "and produce a final, clean representation of all relevant information."
-            
         ),
         backstory=(
             "You are a focused and methodical data wrangler with expertise in extracting key insights from unstructured data."
             "Your role is to identify the most relevant information according to predefined comparison criteria,"
             "organize it into a consistent format, and deliver a final, clean dataset ready for analysis."
         ),
-        
         allow_delegation=False,
         llm=get_llm(uni_info_processor_model, uni_info_processor_temperature),
         # tools=[extract_relevant_content],
@@ -144,11 +140,10 @@ def create_college_exploration_agents(
             "Analyze and compare university programs using the provided {structured_data},"
             "and generate a detailed, user-friendly summary based on the specified {comparison_criteria}."
             "Use all available to tools to provide an answer"
-            
         ),
         backstory=(
-            "You are a detail-oriented academic program analyst with a strong foundation in comparative evaluation." 
-            "Your responsibility is to interpret structured admissions data and translate it into clear," 
+            "You are a detail-oriented academic program analyst with a strong foundation in comparative evaluation."
+            "Your responsibility is to interpret structured admissions data and translate it into clear,"
             "accessible insights that help users easily understand how programs differ and which options best match their needs."
         ),
         allow_delegation=False,
@@ -163,4 +158,3 @@ def create_college_exploration_agents(
         "uni_info_processor_agent": uni_info_processor_agent,
         "program_comparison_agent": program_comparison_agent,
     }
-
