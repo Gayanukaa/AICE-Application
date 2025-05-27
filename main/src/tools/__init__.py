@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_openai import AzureChatOpenAI
 from pydantic import Field
-from crewai_tools import (SerperDevTool, ScrapeWebsiteTool)
+from crewai_tools import (SerperDevTool, ScrapeWebsiteTool, FileReadTool)
 
 load_dotenv()
 
@@ -27,6 +27,7 @@ class SearchTool(BaseTool):
         except Exception as e:
             return f"Error performing search: {str(e)}"
 
+file_read_tool = FileReadTool(file_path='./main/src/tools/Comp_Instructions.md')
 search_uni = SerperDevTool()
 scrape_website = ScrapeWebsiteTool()
 
@@ -40,13 +41,13 @@ def fetch_university_admission_info(university_name: str, field: str, level: str
         university_name (str): Name of the university to retrieve information from.
         field (str): The specific admission-related detail to retrieve. 
                      Possible values include:
-                        - "requirements"
-                        - "deadlines"
-                        - "fees"
-                        - "scholarships"
+                        - "entry requirements"
+                        - "admission deadlines"
+                        - "fees/cost"
+                        - "scholarships/grants"
                         - "university ranking"
                         - "subject ranking"
-                        - "{subject} course structure"
+                        - "course curriculum"
                     Use synonyms when necessary
         level (str): Level of study (e.g., "undergraduate", "postgraduate").
         course (str): Name of subject course/program
@@ -63,7 +64,7 @@ def fetch_university_admission_info(university_name: str, field: str, level: str
         return links
     
     try:
-        response = search_uni.run(search_query=f"{university_name} {level} {course} {field} ")
+        response = search_uni.run(search_query=f"{field} for {level} {course} at {university_name} ")
         urls = extract_main_links(response)         #Extract main links from response
 
         if not urls:
@@ -77,8 +78,6 @@ def fetch_university_admission_info(university_name: str, field: str, level: str
             result = f"Error: {str(e)}"
 
     return result
-
-
 
 # @tool("extract_relavant_content")
 # def extract_relevant_content(field: str, text: str) -> dict:
