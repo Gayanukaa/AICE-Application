@@ -25,8 +25,6 @@ def read_db() -> Dict[str, Any]:
             "cost_breakdown_results": {},
             "timeline_sessions": {},
             "timeline_results": {},
-
-
         }
         update_db(default)
         return default
@@ -236,8 +234,11 @@ def delete_program_analysis_session(session_id: str) -> None:
     db["program_comparison_reports"].pop(session_id, None)
     update_db(db)
 
+
 # dynamic checklist
-def create_checklist_session(user_id: str, nationality: str, program_level: str, university_list: List[str]) -> str:
+def create_checklist_session(
+    user_id: str, nationality: str, program_level: str, university_list: List[str]
+) -> str:
     db = read_db()
     session_id = str(uuid.uuid4())
     db["checklist_sessions"][session_id] = {
@@ -284,8 +285,15 @@ def delete_checklist_session(session_id: str) -> None:
     db["dynamic_checklists"].pop(session_id, None)
     update_db(db)
 
+
 # cost breakdown
-def create_cost_breakdown_session(user_id: str, university_list: List[str], program_level: str, user_budget: float, destination: str) -> str:
+def create_cost_breakdown_session(
+    user_id: str,
+    university_list: List[str],
+    program_level: str,
+    user_budget: float,
+    destination: str,
+) -> str:
     db = read_db()
     session_id = str(uuid.uuid4())
     db["cost_breakdown_sessions"][session_id] = {
@@ -341,7 +349,13 @@ def delete_cost_breakdown_session(session_id: str) -> None:
     db["cost_breakdown_results"].pop(session_id, None)
     update_db(db)
 
-def create_timeline_session(user_id: str, university_list: List[str], program_level: str, applicant_availability: Optional[str]) -> str:
+
+def create_timeline_session(
+    user_id: str,
+    university_list: List[str],
+    program_level: str,
+    applicant_availability: Optional[str],
+) -> str:
     db = read_db()
     session_id = str(uuid.uuid4())
     db["timeline_sessions"][session_id] = {

@@ -107,6 +107,7 @@ def create_program_analysis_crew(
     result = crew.kickoff()
     return result, tasks
 
+
 def create_dynamic_checklist_crew(
     session_id: str,
     nationality: str,
@@ -127,9 +128,7 @@ def create_dynamic_checklist_crew(
     # instantiate all planning agents, then pick only the checklist one
     agents = create_university_planning_agents(session_id)
     selected_agents = {
-        name: agents[name]
-        for name in ("dynamic_checklist_agent",)
-        if name in agents
+        name: agents[name] for name in ("dynamic_checklist_agent",) if name in agents
     }
 
     # build only the checklist tasks
@@ -138,9 +137,9 @@ def create_dynamic_checklist_crew(
         nationality=nationality,
         program_level=program_level,
         university_list=university_list,
-        user_budget=0.0,            # unused in this flow
-        destination="",             # unused in this flow
-        applicant_availability=None,# unused in this flow
+        user_budget=0.0,  # unused in this flow
+        destination="",  # unused in this flow
+        applicant_availability=None,  # unused in this flow
         agents=selected_agents,
     )
 
@@ -186,12 +185,12 @@ def cost_breakdown_crew(
     # build only the cost-breakdown tasks
     tasks = create_university_planning_tasks(
         session_id=session_id,
-        nationality="",             # unused in this flow
+        nationality="",  # unused in this flow
         program_level=program_level,
         university_list=university_list,
         user_budget=user_budget,
         destination=destination,
-        applicant_availability=None, # unused in this flow
+        applicant_availability=None,  # unused in this flow
         agents=selected_agents,
     )
 
@@ -236,11 +235,11 @@ def create_timeline_generator_crew(
     # build only the timeline tasks
     tasks = create_university_planning_tasks(
         session_id=session_id,
-        nationality="",               # unused in this flow
+        nationality="",  # unused in this flow
         program_level=program_level,
         university_list=university_list,
-        user_budget=0.0,              # unused in this flow
-        destination="",               # unused in this flow
+        user_budget=0.0,  # unused in this flow
+        destination="",  # unused in this flow
         applicant_availability=applicant_availability,
         agents=selected_agents,
     )

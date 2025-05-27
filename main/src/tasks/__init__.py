@@ -1,17 +1,15 @@
-from typing import Any, Dict, List
-from typing import Optional
-from crewai import Agent, Task
-from pydantic import BaseModel
+from typing import Any, Dict, List, Optional
+
 from config.report_paths import (
+    COST_BREAKDOWN_FILE,
+    DEADLINES_FILE,
+    DYNAMIC_CHECKLIST_FILE,
     ESSAY_OUTLINE_FILE,
     PROGRAM_COMPARISON_REPORT_FILE,
     RAW_ADMISSIONS_DATA_FILE,
+    RAW_FEES_FILE,
     REFINED_ESSAY_FILE,
     STRUCTURED_ADMISSIONS_DATA_FILE,
-    DYNAMIC_CHECKLIST_FILE,
-    RAW_FEES_FILE,
-    COST_BREAKDOWN_FILE,
-    DEADLINES_FILE,
     TIMELINE_FILE,
 )
 from crewai import Agent, Task
@@ -51,6 +49,7 @@ class ProgramComparisonReport(BaseModel):
 
 # --- University Planning Outputs ---
 
+
 class ChecklistItem(BaseModel):
     document: str
     required: bool
@@ -59,12 +58,14 @@ class ChecklistItem(BaseModel):
 
 class Checklist(BaseModel):
     """Output model for dynamic application checklist."""
+
     university: str
     items: List[ChecklistItem]
 
 
 class RawFees(BaseModel):
     """Output model for raw university fee retrieval."""
+
     university: str
     program_level: str
     tuition_fee: float
@@ -77,17 +78,19 @@ class CostItem(BaseModel):
 
 class CostBreakdown(BaseModel):
     """Output model for detailed cost estimation."""
+
     total_budget: float
     breakdown: List[CostItem]
 
 
 class InterviewPeriod(BaseModel):
     start: str  # ISO date
-    end: str    # ISO date
+    end: str  # ISO date
 
 
 class DeadlineData(BaseModel):
     """Output model for extracted application deadlines."""
+
     university: str
     application_start: str
     application_end: str
@@ -108,8 +111,10 @@ class SuggestedItem(BaseModel):
 
 class ApplicationTimeline(BaseModel):
     """Output model for suggested application timeline."""
+
     events: List[TimelineEvent]
     suggestions: List[SuggestedItem]
+
 
 def create_college_exploration_tasks(
     session_id: str,
@@ -247,6 +252,7 @@ def create_college_exploration_tasks(
         ctx["compare_programs"] = t5
 
     return tasks
+
 
 def create_university_planning_tasks(
     session_id: str,

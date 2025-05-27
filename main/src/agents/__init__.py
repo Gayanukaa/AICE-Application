@@ -151,8 +151,9 @@ def create_college_exploration_agents(
         "essay_refinement_agent": essay_refinement_agent,
         "uni_info_scraper_agent": uni_info_scraper_agent,
         "uni_info_processor_agent": uni_info_processor_agent,
-        "program_comparison_agent": program_comparison_agent
+        "program_comparison_agent": program_comparison_agent,
     }
+
 
 def create_university_planning_agents(
     session_id: str,
@@ -167,23 +168,17 @@ def create_university_planning_agents(
         config, "dynamic_checklist_agent", "temperature"
     )
 
-    cost_breakdown_model = get_config_value(
-        config, "cost_breakdown_agent", "model"
-    )
+    cost_breakdown_model = get_config_value(config, "cost_breakdown_agent", "model")
     cost_breakdown_temperature = get_config_value(
         config, "cost_breakdown_agent", "temperature"
     )
 
-    timeline_planner_model = get_config_value(
-        config, "timeline_planner_agent", "model"
-    )
+    timeline_planner_model = get_config_value(config, "timeline_planner_agent", "model")
     timeline_planner_temperature = get_config_value(
         config, "timeline_planner_agent", "temperature"
     )
 
-    fee_retriever_model = get_config_value(
-        config, "fee_retriever_agent", "model"
-    )
+    fee_retriever_model = get_config_value(config, "fee_retriever_agent", "model")
     fee_retriever_temperature = get_config_value(
         config, "fee_retriever_agent", "temperature"
     )
@@ -222,12 +217,12 @@ def create_university_planning_agents(
         # tools=[generate_checklist_tool],
     )
 
-        # 1a. University Fee Retriever Agent
-    '''
+    # 1a. University Fee Retriever Agent
+    """
         university_name (or list of names)
         program_level (e.g. “Bachelor”, “Master”)
         (optional) year or academic session if fees vary by intake
-    '''
+    """
     fee_retriever_agent = Agent(
         role="University Fee Retriever",
         goal=(
@@ -242,12 +237,12 @@ def create_university_planning_agents(
         llm=get_llm(fee_retriever_model, fee_retriever_temperature),
         # tools=[scrape_university_fees_tool],
     )
-    '''
+    """
     user_budget (e.g. total or per-month)
     destination_country (or city)
     Plus output from University Fee Retriever, namely: "tuition_fee", "program_level", "university_name"
     (optional) any user preferences (e.g. “prefer on-campus housing”)
-    '''
+    """
     # 1b. Cost Breakdown Generator Agent
     cost_breakdown_generator_agent = Agent(
         role="Cost Breakdown Generator",
@@ -264,11 +259,11 @@ def create_university_planning_agents(
         llm=get_llm(cost_breakdown_model, cost_breakdown_temperature),
         # tools=[calculate_expenses_tool],
     )
-    '''
+    """
     university_name
     program_level
     intake_term (e.g. “Fall 2026”)
-    '''
+    """
     # 2a. Deadline Extractor Agent
     deadline_extractor_agent = Agent(
         role="Deadline Extractor",
@@ -284,10 +279,10 @@ def create_university_planning_agents(
         llm=get_llm(deadline_extractor_model, deadline_extractor_temperature),
         # tools=[scrape_university_deadlines_tool],
     )
-    '''
+    """
     Output from Deadline Extractor Agent: "application_start", "application_end",
     "essay_deadline", "interview_periods", "scholarship_deadlines"
-    '''
+    """
     # 2b. Timeline Generator Agent
     timeline_generator_agent = Agent(
         role="Timeline Generator",
@@ -304,12 +299,10 @@ def create_university_planning_agents(
         # tools=[create_timeline_tool, send_reminders_tool],
     )
 
-
     return {
         "dynamic_checklist_agent": dynamic_checklist_agent,
         "fee_retriever_agent": fee_retriever_agent,
         "cost_breakdown_generator_agent": cost_breakdown_generator_agent,
         "deadline_extractor_agent": deadline_extractor_agent,
-        "timeline_generator_agent": timeline_generator_agent
+        "timeline_generator_agent": timeline_generator_agent,
     }
-

@@ -23,7 +23,7 @@ def get_llm_instance() -> AzureChatOpenAI | ChatOpenAI:
         return AzureChatOpenAI(
             azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
             azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-            openai_api_key=os.getenv("AZURE_OPENAI_API_KEY"), # type: ignore
+            openai_api_key=os.getenv("AZURE_OPENAI_API_KEY"),  # type: ignore
             temperature=0.1,
         )
     else:

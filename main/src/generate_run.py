@@ -1,17 +1,20 @@
 import json
-from typing import Any, Dict
-
 import logging
-import json
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 import db as db
-from crew import create_essay_writing_crew, create_program_analysis_crew
-from crew import create_dynamic_checklist_crew, cost_breakdown_crew, create_timeline_generator_crew
+from crew import (
+    cost_breakdown_crew,
+    create_dynamic_checklist_crew,
+    create_essay_writing_crew,
+    create_program_analysis_crew,
+    create_timeline_generator_crew,
+)
+
 
 def generate_college_exploration_background(
     session_id: str,
@@ -119,12 +122,15 @@ def generate_college_exploration_background(
             # fallback for unrecognized flow
             raise
 
+
 def generate_application_planning_background(
     session_id: str,
     session_data: Dict[str, Any],
 ) -> None:
     flow = session_data.get("flow_type")
-    logger.info(f"Starting application planning for session: {session_id}, flow: {flow}")
+    logger.info(
+        f"Starting application planning for session: {session_id}, flow: {flow}"
+    )
 
     try:
         if flow == "dynamic_checklist":
@@ -183,14 +189,17 @@ def generate_application_planning_background(
                 logger.debug(f"Evaluating task: {task.description}")
                 desc = task.description.strip().lower()
                 raw = task.output.raw
-                if "retrieve fees" in desc or "fee_retriever" in task.agent.role.lower():
+                if (
+                    "retrieve fees" in desc
+                    or "fee_retriever" in task.agent.role.lower()
+                ):
                     fees = json.loads(raw) if _is_json(raw) else raw
                     logger.info(f"Fees retrieved: {fees}")
                 elif "cost breakdown" in desc or "breakdown" in task.agent.role.lower():
                     breakdown = json.loads(raw) if _is_json(raw) else raw
                     logger.info(f"Breakdown generated: {breakdown}")
 
-            db.save_cost_breakdown(session_id,fees, breakdown)
+            db.save_cost_breakdown(session_id, fees, breakdown)
             logger.info("Cost breakdown saved to DB")
 
         elif flow == "timeline":
@@ -217,21 +226,30 @@ def generate_application_planning_background(
                 logger.debug(f"Evaluating task: {task.description}")
                 desc = task.description.strip().lower()
                 raw = task.output.raw
-                if "deadline extractor" in task.agent.role.lower() or "extract deadlines" in desc:
+                if (
+                    "deadline extractor" in task.agent.role.lower()
+                    or "extract deadlines" in desc
+                ):
                     deadlines = json.loads(raw) if _is_json(raw) else raw
                     logger.info(f"Deadlines extracted: {deadlines}")
-                elif "timeline generator" in task.agent.role.lower() or "generate timeline" in desc:
+                elif (
+                    "timeline generator" in task.agent.role.lower()
+                    or "generate timeline" in desc
+                ):
                     timeline = json.loads(raw) if _is_json(raw) else raw
                     logger.info(f"Timeline generated: {timeline}")
 
-            db.save_timeline(session_id,deadlines, timeline)
+            db.save_timeline(session_id, deadlines, timeline)
             logger.info("Timeline data saved to DB")
 
         else:
             raise ValueError(f"Unknown flow_type: {flow}")
 
     except Exception as e:
-        logger.error(f"Error occurred during flow '{flow}' for session '{session_id}': {e}", exc_info=True)
+        logger.error(
+            f"Error occurred during flow '{flow}' for session '{session_id}': {e}",
+            exc_info=True,
+        )
         if flow == "dynamic_checklist":
             sess = db.get_checklist_session(session_id)
             key = "checklist_sessions"
@@ -250,6 +268,7 @@ def generate_application_planning_background(
         d[key][session_id] = sess
         db.update_db(d)
         logger.info(f"Marked session {session_id} as failed and saved error")
+
 
 def _is_json(s: str) -> bool:
     """Utility to detect whether a string can be parsed as JSON."""

@@ -4,8 +4,10 @@ import db
 from config.models import RedditPost, SentimentRequest, SentimentResponse
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from generate_run import generate_college_exploration_background
-from generate_run import generate_application_planning_background
+from generate_run import (
+    generate_application_planning_background,
+    generate_college_exploration_background,
+)
 from pydantic import BaseModel
 from utils.sentiment_utils import sentiment_reddit_summary
 
@@ -157,13 +159,12 @@ def get_program_analysis_result(session_id: str):
         "program_comparison_report": report,
     }
 
+
 # --- Dynamic Checklist (Feature 4) ------------------------------------------
 
+
 @app.post("/sessions/checklist")
-def start_dynamic_checklist(
-    payload: Dict[str, Any],
-    background_tasks: BackgroundTasks
-):
+def start_dynamic_checklist(payload: Dict[str, Any], background_tasks: BackgroundTasks):
     """
     Start a Dynamic Application Checklist session.
     Expects JSON with:
@@ -179,13 +180,17 @@ def start_dynamic_checklist(
     program_level = payload.get("program_level")
     university_list = payload.get("university_list")
 
-    if not user_id \
-       or not isinstance(nationality, str) \
-       or not isinstance(program_level, str) \
-       or not isinstance(university_list, list):
+    if (
+        not user_id
+        or not isinstance(nationality, str)
+        or not isinstance(program_level, str)
+        or not isinstance(university_list, list)
+    ):
         raise HTTPException(status_code=400, detail="Missing or invalid fields")
 
-    session_id = db.create_checklist_session(user_id, nationality, program_level, university_list)
+    session_id = db.create_checklist_session(
+        user_id, nationality, program_level, university_list
+    )
 
     background_tasks.add_task(
         generate_application_planning_background,
@@ -221,11 +226,9 @@ def get_dynamic_checklist_result(session_id: str):
 
 # --- Cost Breakdown (Feature 5) --------------------------------------------
 
+
 @app.post("/sessions/cost-breakdown")
-def start_cost_breakdown(
-    payload: Dict[str, Any],
-    background_tasks: BackgroundTasks
-):
+def start_cost_breakdown(payload: Dict[str, Any], background_tasks: BackgroundTasks):
     """
     Start a Personalized Cost Breakdown session.
     Expects JSON with:
@@ -243,11 +246,13 @@ def start_cost_breakdown(
     user_budget = payload.get("user_budget")
     destination = payload.get("destination")
 
-    if not user_id \
-       or not isinstance(university_list, list) \
-       or not isinstance(program_level, str) \
-       or not isinstance(user_budget, (int, float)) \
-       or not isinstance(destination, str):
+    if (
+        not user_id
+        or not isinstance(university_list, list)
+        or not isinstance(program_level, str)
+        or not isinstance(user_budget, (int, float))
+        or not isinstance(destination, str)
+    ):
         raise HTTPException(status_code=400, detail="Missing or invalid fields")
 
     session_id = db.create_cost_breakdown_session(
@@ -293,11 +298,9 @@ def get_cost_breakdown_result(session_id: str):
 
 # --- Timeline Planner (Feature 6) ------------------------------------------
 
+
 @app.post("/sessions/timeline")
-def start_timeline_planner(
-    payload: Dict[str, Any],
-    background_tasks: BackgroundTasks
-):
+def start_timeline_planner(payload: Dict[str, Any], background_tasks: BackgroundTasks):
     """
     Start an Interactive Application Timeline session.
     Expects JSON with:
@@ -313,9 +316,11 @@ def start_timeline_planner(
     program_level = payload.get("program_level")
     applicant_availability = payload.get("applicant_availability")
 
-    if not user_id \
-       or not isinstance(university_list, list) \
-       or not isinstance(program_level, str):
+    if (
+        not user_id
+        or not isinstance(university_list, list)
+        or not isinstance(program_level, str)
+    ):
         raise HTTPException(status_code=400, detail="Missing or invalid fields")
 
     session_id = db.create_timeline_session(
