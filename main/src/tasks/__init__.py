@@ -246,3 +246,156 @@ def create_college_exploration_tasks(
         ctx["compare_programs"] = t5
 
     return tasks
+
+
+def create_university_planning_tasks(
+    session_id: str,
+    nationality: str,
+    program_level: str,
+    university_list: List[str],
+    user_budget: float,
+    destination: str,
+    applicant_availability: Optional[str],
+    agents: Dict[str, Agent],
+) -> List[Task]:
+    """Build tasks for checklist generation, cost planning, and timeline planning flows."""
+
+    def _path(template: str) -> str:
+        return template.format(session_id=session_id)
+
+    tasks: List[Task] = []
+    ctx: Dict[str, Task] = {}
+
+    if "dynamic_checklist_agent" in agents:
+        t1 = Task(
+            description=f"""
+            Build a tailored document checklist for each university/course
+            considering the applicant’s nationality and program level:
+
+            - Applicant nationality: {nationality}
+            - Program level: {program_level}
+            - Universities: {university_list}
+            """,
+            expected_output="""
+            A JSON array of checklists, one per university, each item:
+            - document: string
+            - required: bool
+            - notes: optional string
+            """,
+            agent=agents["dynamic_checklist_agent"],
+            output_file=_path(DYNAMIC_CHECKLIST_FILE),
+            output_json=Checklist,
+        )
+        tasks.append(t1)
+        ctx["checklist"] = t1
+
+    # --- Feature 5: Personalized Cost Breakdown ---
+
+    # Task 2: Fetch raw university fee data
+    if "fee_retriever_agent" in agents:
+        t2 = Task(
+            description=f"""
+            Retrieve tuition fees for the following universities and program level:
+            - Universities: {university_list}
+            - Program level: {program_level}
+            """,
+            expected_output="""
+            A JSON object per university:
+            - university: string
+            - program_level: string
+            - tuition_fee: number
+            """,
+            agent=agents["fee_retriever_agent"],
+            output_file=_path(RAW_FEES_FILE),
+            output_json=RawFees,
+        )
+        tasks.append(t2)
+        ctx["fees"] = t2
+
+    # Task 3: Generate comprehensive cost breakdown
+    if "cost_breakdown_generator_agent" in agents and "fees" in ctx:
+        t3 = Task(
+            description=f"""
+            Create a detailed cost breakdown using:
+            - User budget: {user_budget}
+            - Destination: {destination}
+            - Tuition fee data: {{{{steps.fees.output}}}}
+
+            Include line items for:
+            • Accommodation
+            • Living expenses (food, transport, utilities)
+            • Visa & insurance
+            • Travel & misc.
+            """,
+            expected_output="""
+            A JSON object:
+            - total_budget: number
+            - breakdown: list of { category: string, cost: number }
+            """,
+            agent=agents["cost_breakdown_generator_agent"],
+            output_file=_path(COST_BREAKDOWN_FILE),
+            output_json=CostBreakdown,
+            context=[ctx["fees"]],
+        )
+        tasks.append(t3)
+        ctx["costs"] = t3
+
+    # --- Feature 6: Interactive Application Timeline Planner ---
+
+    # Task 4: Extract all relevant deadlines
+    if "deadline_extractor_agent" in agents:
+        t4 = Task(
+            description=f"""
+            Scrape and consolidate application deadlines for:
+            - Universities: {university_list}
+            - Program level: {program_level}
+
+            Extract:
+            • Application start/end
+            • Essay submission
+            • Interview windows
+            • Scholarship deadlines
+            """,
+            expected_output="""
+            A JSON object:
+            - application_start: date
+            - application_end: date
+            - essay_deadline: date
+            - interview_periods: list of { start: date, end: date }
+            - scholarship_deadlines: list of dates
+            """,
+            agent=agents["deadline_extractor_agent"],
+            output_file=_path(DEADLINES_FILE),
+            output_json=DeadlineData,
+        )
+        tasks.append(t4)
+        ctx["deadlines"] = t4
+
+    # Task 5: Generate the personalized timeline
+    if "timeline_generator_agent" in agents and "deadlines" in ctx:
+        t5 = Task(
+            description=f"""
+            Build an interactive application timeline using:
+            - Extracted deadlines: {{{{steps.deadlines.output}}}}
+            - Applicant availability preferences: {applicant_availability or "none"}
+
+            Suggest optimal slots for:
+            • Essay drafts & revisions
+            • Document uploads
+            • Interview prep
+            • Scholarship applications
+            """,
+            expected_output="""
+            A JSON timeline:
+            - events: list of { date: date, task: string }
+            - suggestions: list of { task: string, recommended_date: date }
+            """,
+            agent=agents["timeline_generator_agent"],
+            output_file=_path(TIMELINE_FILE),
+            output_json=ApplicationTimeline,
+            context=[ctx["deadlines"]],
+        )
+        tasks.append(t5)
+        ctx["timeline"] = t5
+
+    return tasks
