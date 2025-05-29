@@ -7,7 +7,7 @@ from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from tools import (  # extract_relevant_content,
     SearchTool,
     fetch_university_admission_info,
-    file_read_tool,
+    Read_comparison_instructions,
 )
 from utils import get_config_value, load_config
 
@@ -146,9 +146,10 @@ def create_college_exploration_agents(
             "Your responsibility is to interpret structured admissions data and translate it into clear,"
             "accessible insights that help users easily understand how programs differ and which options best match their needs."
         ),
+        response_template="",
         allow_delegation=False,
         llm=get_llm(program_comparison_model, program_comparison_temperature),
-        tools=[file_read_tool],
+        tools=[Read_comparison_instructions],
     )
 
     return {

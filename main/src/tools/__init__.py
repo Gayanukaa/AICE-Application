@@ -29,7 +29,7 @@ class SearchTool(BaseTool):
             return f"Error performing search: {str(e)}"
 
 
-file_read_tool = FileReadTool(file_path="./main/src/tools/Comp_Instructions.md")
+file_read_tool = FileReadTool()
 search_uni = SerperDevTool()
 
 def extract_main_links(data):
@@ -39,11 +39,23 @@ def extract_main_links(data):
                 links.append(item["link"])
         return links
 
+@tool("Read_comparison_instructions")
+def Read_comparison_instructions() -> str:
+    """
+    Loads a markdown file containing guidelines for comparing universities 
+    and formatting the information in markdown.
+
+    Returns:
+        str: Markdown-formatted instructions for university comparison.
+    """
+    instructions  = file_read_tool._run(file_path= r"tools\Comp_Instructions.md")
+    return instructions
+
 
 @tool("fetch_university_admission_info")
 def fetch_university_admission_info(
     university_name: str, field: str, level: str, course: str
-) -> dict:
+) -> str:
     """
     Retrieves specific admission-related information for a given university and level of study
     by scraping university websites.
@@ -59,6 +71,7 @@ def fetch_university_admission_info(
                         - "university ranking"
                         - "subject ranking"
                         - "course curriculum"
+                        - "duration"
         level (str): Level of study (e.g., "undergraduate", "postgraduate").
         course (str): Name of subject course/program
 
@@ -67,24 +80,20 @@ def fetch_university_admission_info(
               Format: { field: {"url": str or None, "content": str} }
     """
 
-    result = {
-        field: {"url": None, "content": "No results found"},
-    }
-
     try:
+        result = "No results found"
         search_query = f"{field} for {level} {course} at {university_name}"
         response = search_uni.run(search_query=search_query)
         urls = extract_main_links(response)
         url = urls[0]
         if url:
             content = ScrapeWebsiteTool(website_url=url).run()
-            result[field] = {"url": url, "content": content}
-
-        return result
-
+            result = f"url: {url}\n" + content
+        
     except Exception as e:
-        return {"error": str(e)}
+        result = f"Error: {str(e)}"
 
+    return result
 
 @tool("fetch_university_fees")
 def fetch_university_fees(university: str, course: str, origin: str, level: str) -> dict:
@@ -164,6 +173,7 @@ def fetch_university_deadlines(university: str, origin: str, level: str) -> dict
 
     
     }
+
 
     try:
         university_deadlines_query = f"{university} {origin} prospective {level} student application deadlines"
