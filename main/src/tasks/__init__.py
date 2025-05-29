@@ -236,7 +236,7 @@ def create_college_exploration_tasks(
 
             If suitable information for the {comparison_criteria} is not available, indicate that the data could not be found.
             """,
-            expected_output="A user-friendly summary report highlighting the key differences between the programs. Present the output in the specified markdown format",
+            expected_output="A user-friendly summary report highlighting the key differences between the programs. Present the output according to the specified markdown format in the Comp_Instructions.md file",
             agent=agents["program_comparison_agent"],
             output_file=_path(PROGRAM_COMPARISON_REPORT_FILE),
             # output_json=ProgramComparisonReport,
