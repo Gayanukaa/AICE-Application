@@ -32,6 +32,11 @@ def main():
                 title="Sentiment Analysis",
                 icon="🕵️",
             ),
+            st.Page(
+                "pages/4_Cost_Analysis.py",
+                title="Cost Breakdown",
+                icon="💵",
+            ),
         ]
     )
     pg.run()

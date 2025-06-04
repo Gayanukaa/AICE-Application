@@ -90,3 +90,52 @@ def sentiment_analysis(reviews: list[str]) -> dict:
     )
     resp.raise_for_status()
     return resp.json()
+
+
+
+def create_cost_breakdown_session(
+    user_id: str,
+    university: str,
+    course: str,
+    applicant_type: str,
+    location: str,
+    preferences: str
+) -> str:
+    """
+    POST /sessions/cost-breakdown
+    Returns the new session_id.
+    """
+    payload = {
+        "user_id": user_id,
+        "university": university,
+        "course": course,
+        "applicant_type": applicant_type,
+        "location": location,
+        "preferences": preferences,
+    }
+    resp = httpx.post(f"{API_BASE_URL}/sessions/cost-breakdown", json=payload)
+    resp.raise_for_status()
+    return resp.json()["session_id"]
+
+
+def get_cost_breakdown_status(session_id: str) -> dict:
+    """
+    GET /sessions/cost-breakdown/{session_id}/status
+    Returns {"session_id": ..., "status": ...}.
+    """
+    resp = httpx.get(f"{API_BASE_URL}/sessions/cost-breakdown/{session_id}/status")
+    resp.raise_for_status()
+    return resp.json()
+
+
+def get_cost_breakdown_result(session_id: str) -> dict:
+    """
+    GET /sessions/cost-breakdown/{session_id}/result
+    Returns {"expenses": ..., "total": ...}.
+    """
+    resp = httpx.get(f"{API_BASE_URL}/sessions/cost-breakdown/{session_id}/result")
+
+    resp.raise_for_status()
+    return resp.json()
+
+

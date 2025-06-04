@@ -289,64 +289,63 @@ def delete_checklist_session(session_id: str) -> None:
 # cost breakdown
 def create_cost_breakdown_session(
     user_id: str,
-    university_list: List[str],
-    program_level: str,
-    user_budget: float,
-    destination: str,
+    university: str,
+    course: str,
+    applicant_type: str,
+    location: str,
+    preferences: str,
 ) -> str:
     db = read_db()
+
     session_id = str(uuid.uuid4())
+    
+
     db["cost_breakdown_sessions"][session_id] = {
         "user_id": user_id,
-        "university_list": university_list,
-        "program_level": program_level,
-        "user_budget": user_budget,
-        "destination": destination,
+        "university": university,
+        "course": course,
+        "applicant_type": applicant_type,
+        "location": location,
+        "preferences": preferences,
         "created_at": datetime.datetime.utcnow().isoformat(),
         "status": "pending",
     }
+
     update_db(db)
     return session_id
 
 
 def get_cost_breakdown_session(session_id: str) -> Dict[str, Any]:
     db = read_db()
-    if session_id not in db["cost_breakdown_sessions"]:
+    if session_id not in db.get("cost_breakdown_sessions", {}):
         raise KeyError(f"Cost breakdown session {session_id} not found")
     return db["cost_breakdown_sessions"][session_id]
 
 
-def save_cost_breakdown(session_id: str, fee_data: Any, breakdown: Any) -> None:
+def save_cost_breakdown(session_id: str, breakdown: Dict[str, Any]) -> None:
     db = read_db()
-    if session_id not in db["cost_breakdown_sessions"]:
+    if session_id not in db.get("cost_breakdown_sessions", {}):
         raise KeyError(f"Cost breakdown session {session_id} not found")
+
     db["cost_breakdown_results"][session_id] = {
-        "fee_data": fee_data,
-        "cost_breakdown": breakdown,
+        "breakdown": breakdown,
         "completed_at": datetime.datetime.utcnow().isoformat(),
     }
     db["cost_breakdown_sessions"][session_id]["status"] = "completed"
     update_db(db)
 
 
-def get_fee_data(session_id: str) -> Any:
+def get_cost_breakdown(session_id: str) -> Dict[str, Any]:
     db = read_db()
-    if session_id not in db["cost_breakdown_results"]:
-        raise KeyError(f"No fee data for session {session_id}")
-    return db["cost_breakdown_results"][session_id].get("fee_data")
-
-
-def get_cost_breakdown(session_id: str) -> Any:
-    db = read_db()
-    if session_id not in db["cost_breakdown_results"]:
+    if session_id not in db.get("cost_breakdown_results", {}):
         raise KeyError(f"No cost breakdown for session {session_id}")
-    return db["cost_breakdown_results"][session_id].get("cost_breakdown")
+    return db["cost_breakdown_results"][session_id].get("breakdown")
 
 
 def delete_cost_breakdown_session(session_id: str) -> None:
     db = read_db()
-    db["cost_breakdown_sessions"].pop(session_id, None)
-    db["cost_breakdown_results"].pop(session_id, None)
+    db.get("cost_breakdown_sessions", {}).pop(session_id, None)
+    db.get("cost_breakdown_results", {}).pop(session_id, None)
     update_db(db)
 
 

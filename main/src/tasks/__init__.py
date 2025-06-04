@@ -1,4 +1,6 @@
 from typing import Any, Dict, List, Optional
+import time
+
 
 from config.report_paths import (
     COST_BREAKDOWN_FILE,
@@ -63,25 +65,26 @@ class Checklist(BaseModel):
     items: List[ChecklistItem]
 
 
+
 class RawFees(BaseModel):
     """Output model for raw university fee retrieval."""
-
+    
     university: str
-    program_level: str
+    course: str
+    applicant_type: str
     tuition_fee: float
+    other_fees: Dict[str, float]
 
 
-class CostItem(BaseModel):
-    category: str
-    cost: float
-
+class ExpenseDetail(BaseModel):
+    amount: int
+    description: str
 
 class CostBreakdown(BaseModel):
     """Output model for detailed cost estimation."""
-
-    total_budget: float
-    breakdown: List[CostItem]
-
+    currency: str
+    expenses: Dict[str, ExpenseDetail]
+    total_cost: int
 
 class InterviewPeriod(BaseModel):
     start: str  # ISO date
@@ -250,6 +253,11 @@ def create_college_exploration_tasks(
 
 def create_university_planning_tasks(
     session_id: str,
+    university:str,
+    course:str,
+    applicant_type:str,
+    location:str,
+    preferences:str,
     nationality: str,
     program_level: str,
     university_list: List[str],
@@ -295,15 +303,23 @@ def create_university_planning_tasks(
     if "fee_retriever_agent" in agents:
         t2 = Task(
             description=f"""
-            Retrieve tuition fees for the following universities and program level:
-            - Universities: {university_list}
-            - Program level: {program_level}
+            Retrieve and standardize tuition fee and cost-of-attendance data as of {time.localtime().tm_year} for the specified program:
+            - University: {university}
+            - Course: {course}
+            - Applicant type: {applicant_type}
+
+            Ensure the data is accurate, up to date, clearly structured, and reflects the most recent official figures.
             """,
             expected_output="""
-            A JSON object per university:
-            - university: string
-            - program_level: string
-            - tuition_fee: number
+             A JSON object with the following structure:
+            -university: string,
+            -course: string,
+            -applicant type: string,
+            -tuition fee: float,
+            -other fees: {
+                    <fee type>: float,
+                    ...
+                    }
             """,
             agent=agents["fee_retriever_agent"],
             output_file=_path(RAW_FEES_FILE),
@@ -316,21 +332,35 @@ def create_university_planning_tasks(
     if "cost_breakdown_generator_agent" in agents and "fees" in ctx:
         t3 = Task(
             description=f"""
-            Create a detailed cost breakdown using:
-            - User budget: {user_budget}
-            - Destination: {destination}
-            - Tuition fee data: {{{{steps.fees.output}}}}
+            Using the tuition fee data and user context, generate a detailed annual cost breakdown for studying at the given university based on the following:
+            - Applicant type: {applicant_type}
+            - Location: {location}
+            - Relevant preferences: {preferences}
+            - Tuition and other fees: {{{{steps.fees.output}}}}
 
-            Include line items for:
+            Breakdown must include:
+            • Tuition fees  
             • Accommodation
-            • Living expenses (food, transport, utilities)
-            • Visa & insurance
-            • Travel & misc.
+            • Living expenses (food, utilities)
+            • Visa and insurance
+            • Travel expenses
+            • Other fees(if present)
+
+
+            Estimate each item based on location,applicant type and preferences where applicable.
+            Include the used currency for the breakdown.
             """,
             expected_output="""
             A JSON object:
-            - total_budget: number
-            - breakdown: list of { category: string, cost: number }
+            -currency: string
+            -expenses: {
+                "<expense category>": {
+                    "amount": integer,
+                    "description": string (A detailed paragraph explaining the expense and how the amount was calculated.),
+                    },
+                    ...
+                },
+            -total_cost: integer
             """,
             agent=agents["cost_breakdown_generator_agent"],
             output_file=_path(COST_BREAKDOWN_FILE),

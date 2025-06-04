@@ -8,6 +8,7 @@ from tools import (  # extract_relevant_content,
     SearchTool,
     fetch_university_admission_info,
     Read_comparison_instructions,
+    fetch_university_fees,
 )
 from utils import get_config_value, load_config
 
@@ -225,45 +226,46 @@ def create_university_planning_agents(
 
     # 1a. University Fee Retriever Agent
     """
-        university_name (or list of names)
-        program_level (e.g. “Bachelor”, “Master”)
-        (optional) year or academic session if fees vary by intake
+    university_name: Name or list of university names.
+    course_name: Name of the course or program.
+    applicant_type: 'Domestic' or 'International' indicating the applicant's residency status.
     """
+
     fee_retriever_agent = Agent(
-        role="University Fee Retriever",
+        role="University Tuition Fee Aggregator",
         goal=(
-            "Fetch and aggregate tuition fees and any official university cost estimates "
-            "for a given program level at a specific destination."
+            "Retrieve, process, and present accurate tuition fees and official cost-of-attendance estimates "
+            "for a specified academic program at selected universities."
         ),
         backstory=(
-            "You are a data-driven researcher with expertise scraping and normalizing university "
-            "fee schedules worldwide."
+            "You are a specialist in gathering and standardizing tuition fee data from universities worldwide. "
+            "You help students by providing accurate costs based on program and applicant type."
         ),
         allow_delegation=False,
         llm=get_llm(fee_retriever_model, fee_retriever_temperature),
-        # tools=[scrape_university_fees_tool],
+        tools=[SearchTool()],
     )
     """
-    user_budget (e.g. total or per-month)
-    destination_country (or city)
-    Plus output from University Fee Retriever, namely: "tuition_fee", "program_level", "university_name"
-    (optional) any user preferences (e.g. “prefer on-campus housing”)
+    Location
+    user preferences
+    Plus output from University Fee Retriever, namely:  "university","course", "applicant type", "tuition_fee","other_fees"
+
     """
     # 1b. Cost Breakdown Generator Agent
     cost_breakdown_generator_agent = Agent(
         role="Cost Breakdown Generator",
         goal=(
-            "Create a line-item financial plan covering tuition, accommodation, living expenses, "
-            "visa/insurance costs, and travel/miscellaneous expenses, tailored to the user’s budget "
-            "and destination."
+            "Generate a detailed cost breakdown including tuition, accommodation, living expenses, "
+            "visa/insurance, and travel, based on the specified university, course, applicant type, location, "
+            "and preferences."
         ),
         backstory=(
-            "You are a seasoned financial planner for international students, adept at translating "
-            "budgets and fee data into clear, actionable expense breakdowns."
+            "You are a financial planning expert who creates clear and accurate study cost breakdowns "
+            "based on academic  data."
         ),
         allow_delegation=False,
         llm=get_llm(cost_breakdown_model, cost_breakdown_temperature),
-        # tools=[calculate_expenses_tool],
+        tools=[SearchTool()],
     )
     """
     university_name

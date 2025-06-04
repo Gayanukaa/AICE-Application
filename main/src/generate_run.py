@@ -170,30 +170,23 @@ def generate_application_planning_background(
 
             result, tasks = cost_breakdown_crew(
                 session_id=session_id,
-                university_list=session_data["university_list"],
-                program_level=session_data["program_level"],
-                user_budget=session_data["user_budget"],
-                destination=session_data["destination"],
+                university=session_data["university"],
+                course=session_data["course"],
+                applicant_type=session_data["applicant_type"],
+                location=session_data["location"],
+                preferences=session_data.get("preferences", "")
             )
             logger.info("Cost breakdown crew run complete")
 
-            fees = None
             breakdown = None
             for task in tasks:
                 logger.debug(f"Evaluating task: {task.description}")
                 desc = task.description.strip().lower()
                 raw = task.output.raw
-                if (
-                    "retrieve fees" in desc
-                    or "fee_retriever" in task.agent.role.lower()
-                ):
-                    fees = json.loads(raw) if _is_json(raw) else raw
-                    logger.info(f"Fees retrieved: {fees}")
-                elif "cost breakdown" in desc or "breakdown" in task.agent.role.lower():
+                if task.agent.role == "Cost Breakdown Generator":
                     breakdown = json.loads(raw) if _is_json(raw) else raw
                     logger.info(f"Breakdown generated: {breakdown}")
-
-            db.save_cost_breakdown(session_id, fees, breakdown)
+            db.save_cost_breakdown(session_id, breakdown)
             logger.info("Cost breakdown saved to DB")
 
         elif flow == "timeline":

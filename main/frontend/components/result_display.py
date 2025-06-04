@@ -1,6 +1,8 @@
 # frontend/components/result_display.py
 
 import time
+import pandas as pd
+
 
 import streamlit as st
 from utils.api import (
@@ -8,6 +10,9 @@ from utils.api import (
     get_essay_status,
     get_program_analysis_result,
     get_program_analysis_status,
+    get_cost_breakdown_result,
+    get_cost_breakdown_status,
+
 )
 
 
@@ -99,3 +104,67 @@ def display_program_analysis_results(
         st.markdown(markdown_content)
     else:
         st.error(f"⚠️ Invalid comparison report: {report}")
+
+
+
+def display_cost_breakdown_results(
+    session_id: str, timeout: int = 60, interval: float = 2.0
+):
+    """Poll with a spinner, then nicely render program-analysis outputs."""
+    st.subheader("📊 Cost Breakdown  Results")
+    
+    if "breakdown" not in st.session_state:
+        status = None
+        start = time.time()
+        with st.spinner("Waiting for the cost breakdown agents to finish…"):
+            while time.time() - start < timeout:
+                resp = get_cost_breakdown_status(session_id)
+                if resp["status"] in ("completed", "failed"):
+                    status = resp
+                    break
+                time.sleep(interval)
+
+        if status is None:
+            st.error("⏱️ Timed out waiting for results. Try refreshing.")
+            return
+
+        st.write(f"**Status:** {status['status'].capitalize()}")
+
+        if status["status"] == "failed":
+            st.error(f"⚠️ Error: {status.get('error', 'Unknown error')}")
+            return
+
+        st.session_state.breakdown = get_cost_breakdown_result(session_id)
+    # --- Fetch results ---
+
+   
+    breakdown = st.session_state.breakdown
+    expenses = breakdown["expenses"]
+    currency = breakdown["currency"]
+    total_cost = breakdown["total_cost"]
+
+    # Construct table data
+    table_data = [
+        {"Fee Name": name, f"Amount ({currency})": int(info["amount"])}
+        for name, info in expenses.items()
+    ]
+    # Append total cost row
+    table_data.append(
+        {"Fee Name": "Estimated Total", f"Amount ({currency})": total_cost}
+    )
+
+    # Layout
+    col1, col2 = st.columns([2, 1])
+
+    with col1:
+        st.markdown("### Fee Table")
+        st.table(table_data)
+
+    with col2:
+        st.markdown("### View Description")
+        selected_fee = st.selectbox("Select a fee", list(expenses.keys()))
+        if selected_fee:
+            st.markdown("---")
+            st.markdown(f"**{selected_fee}**")
+            st.info(expenses[selected_fee]["description"])
+      

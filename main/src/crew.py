@@ -157,10 +157,11 @@ def create_dynamic_checklist_crew(
 
 def cost_breakdown_crew(
     session_id: str,
-    university_list: List[str],
-    program_level: str,
-    user_budget: float,
-    destination: str,
+    university: str,
+    course: str,
+    applicant_type: str,
+    location: str,
+    preferences: str,
 ) -> Tuple:
     """
     Create and run a Crew for the Personalized Cost Breakdown flow (Feature 5).
@@ -185,12 +186,17 @@ def cost_breakdown_crew(
     # build only the cost-breakdown tasks
     tasks = create_university_planning_tasks(
         session_id=session_id,
-        nationality="",  # unused in this flow
-        program_level=program_level,
-        university_list=university_list,
-        user_budget=user_budget,
-        destination=destination,
-        applicant_availability=None,  # unused in this flow
+        university=university,
+        course=course,
+        applicant_type=applicant_type,
+        location=location,
+        preferences=preferences,
+        nationality= "",
+        program_level= "",
+        university_list = [],
+        user_budget = 0.0,
+        destination = "",
+        applicant_availability = "",
         agents=selected_agents,
     )
 
@@ -204,6 +210,7 @@ def cost_breakdown_crew(
     )
     result = crew.kickoff()
     return result, tasks
+
 
 
 def create_timeline_generator_crew(

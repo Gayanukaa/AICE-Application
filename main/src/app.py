@@ -233,30 +233,26 @@ def start_cost_breakdown(payload: Dict[str, Any], background_tasks: BackgroundTa
     Start a Personalized Cost Breakdown session.
     Expects JSON with:
       - user_id: str
-      - university_list: List[str]
-      - program_level: str
-      - user_budget: float
-      - destination: str
+      - university: str
+      - course: str
+      - applicant_type: str
+      - location: str
+      - preferences: str
     Returns:
       - session_id: str
     """
     user_id = payload.get("user_id")
-    university_list = payload.get("university_list")
-    program_level = payload.get("program_level")
-    user_budget = payload.get("user_budget")
-    destination = payload.get("destination")
+    university = payload.get("university")
+    course = payload.get("course")
+    applicant_type = payload.get("applicant_type")
+    location = payload.get("location")
+    preferences = payload.get("preferences", "")
 
-    if (
-        not user_id
-        or not isinstance(university_list, list)
-        or not isinstance(program_level, str)
-        or not isinstance(user_budget, (int, float))
-        or not isinstance(destination, str)
-    ):
-        raise HTTPException(status_code=400, detail="Missing or invalid fields")
+    if not all(isinstance(field, str) for field in [user_id, university, course, applicant_type, location]):
+        raise HTTPException(status_code=400, detail="Missing or invalid required fields")
 
     session_id = db.create_cost_breakdown_session(
-        user_id, university_list, program_level, user_budget, destination
+        user_id, university, course, applicant_type, location, preferences
     )
 
     background_tasks.add_task(
@@ -264,10 +260,11 @@ def start_cost_breakdown(payload: Dict[str, Any], background_tasks: BackgroundTa
         session_id,
         {
             "flow_type": "cost_breakdown",
-            "university_list": university_list,
-            "program_level": program_level,
-            "user_budget": user_budget,
-            "destination": destination,
+            "university": university,
+            "course": course,
+            "applicant_type": applicant_type,
+            "location": location,
+            "preferences": preferences,
         },
     )
 
@@ -278,6 +275,9 @@ def start_cost_breakdown(payload: Dict[str, Any], background_tasks: BackgroundTa
 def get_cost_breakdown_status(session_id: str):
     """
     Get the current status of a Cost Breakdown session.
+    Returns:
+      - session_id: str
+      - status: str
     """
     sess = db.get_cost_breakdown_session(session_id)
     return {"session_id": session_id, "status": sess["status"]}
@@ -286,14 +286,14 @@ def get_cost_breakdown_status(session_id: str):
 @app.get("/sessions/cost-breakdown/{session_id}/result")
 def get_cost_breakdown_result(session_id: str):
     """
-    Fetch fee data and cost breakdown after completion.
+    Fetch summarized cost breakdown after completion.
+    Returns:
+      - currency: string
+      - expenses: dict
+      - total_cost: integer 
     """
-    fees = db.get_fee_data(session_id)
-    breakdown = db.get_cost_breakdown(session_id)
-    return {
-        "fee_data": fees,
-        "cost_breakdown": breakdown,
-    }
+    result = db.get_cost_breakdown(session_id)
+    return result
 
 
 # --- Timeline Planner (Feature 6) ------------------------------------------
