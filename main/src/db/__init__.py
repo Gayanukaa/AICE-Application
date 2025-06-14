@@ -10,27 +10,37 @@ DB_FILENAME = os.path.join(os.path.dirname(__file__), "aice_db.json")
 
 def read_db() -> Dict[str, Any]:
     """Load the entire database, creating defaults if necessary."""
+    
+    default = {
+        "users": {},
+        "essay_writing_sessions": {},
+        "essay_results": {},
+        "program_analysis_sessions": {},
+        "raw_admissions_data": {},
+        "structured_admissions_data": {},
+        "program_comparison_reports": {},
+        "checklist_sessions": {},
+        "dynamic_checklists": {},
+        "cost_breakdown_sessions": {},
+        "cost_breakdown_results": {},
+        "timeline_sessions": {},
+        "timeline_results": {},
+    }
+
     if not os.path.exists(DB_FILENAME):
-        default = {
-            "users": {},
-            "essay_writing_sessions": {},
-            "essay_results": {},
-            "program_analysis_sessions": {},
-            "raw_admissions_data": {},
-            "structured_admissions_data": {},
-            "program_comparison_reports": {},
-            "checklist_sessions": {},
-            "dynamic_checklists": {},
-            "cost_breakdown_sessions": {},
-            "cost_breakdown_results": {},
-            "timeline_sessions": {},
-            "timeline_results": {},
-        }
         update_db(default)
         return default
 
     with open(DB_FILENAME, "r") as f:
-        return json.load(f)
+        db = json.load(f)
+
+    # Add any missing keys from default
+    for key, value in default.items():
+        if key not in db:
+            db[key] = value
+
+    update_db(db)  # Save any new keys added
+    return db
 
 
 def update_db(db: Dict[str, Any]) -> None:
@@ -298,7 +308,7 @@ def create_cost_breakdown_session(
     db = read_db()
 
     session_id = str(uuid.uuid4())
-    
+
 
     db["cost_breakdown_sessions"][session_id] = {
         "user_id": user_id,
@@ -351,22 +361,29 @@ def delete_cost_breakdown_session(session_id: str) -> None:
 
 def create_timeline_session(
     user_id: str,
-    university_list: List[str],
-    program_level: str,
+    universities: list,
+    level: str,
+    applicant_type: str,
+    nationality: str,
+    intake: str,
     applicant_availability: Optional[str],
 ) -> str:
     db = read_db()
     session_id = str(uuid.uuid4())
     db["timeline_sessions"][session_id] = {
         "user_id": user_id,
-        "university_list": university_list,
-        "program_level": program_level,
+        "universities": universities,
+        "level": level,
+        "applicant_type": applicant_type,
+        "nationality": nationality,
+        "intake": intake,
         "applicant_availability": applicant_availability,
         "created_at": datetime.datetime.utcnow().isoformat(),
         "status": "pending",
     }
     update_db(db)
     return session_id
+
 
 
 def get_timeline_session(session_id: str) -> Dict[str, Any]:

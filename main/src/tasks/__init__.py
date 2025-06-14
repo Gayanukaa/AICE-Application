@@ -91,7 +91,7 @@ class InterviewPeriod(BaseModel):
     end: str  # ISO date
 
 
-class DeadlineData(BaseModel):
+class Uni_DeadlineData(BaseModel):
     """Output model for extracted application deadlines."""
 
     university: str
@@ -100,6 +100,10 @@ class DeadlineData(BaseModel):
     essay_deadline: Optional[str]
     interview_periods: List[InterviewPeriod]
     scholarship_deadlines: List[str]
+
+class DeadlineData(BaseModel):
+    """Top-level container for university deadline data."""
+    deadlines: List[Uni_DeadlineData]
 
 
 class TimelineEvent(BaseModel):
@@ -111,10 +115,15 @@ class SuggestedItem(BaseModel):
     task: str
     recommended_date: str
 
+class DeadlineEvent(BaseModel):
+
+    date: str
+    name: str
 
 class ApplicationTimeline(BaseModel):
     """Output model for suggested application timeline."""
-
+    
+    deadlines: List[DeadlineEvent]
     events: List[TimelineEvent]
     suggestions: List[SuggestedItem]
 
@@ -253,17 +262,16 @@ def create_college_exploration_tasks(
 
 def create_university_planning_tasks(
     session_id: str,
-    university:str,
-    course:str,
-    applicant_type:str,
-    location:str,
-    preferences:str,
+    universities: list,
+    university: str,
+    course: str,
+    level: str,
+    applicant_type: str,
     nationality: str,
-    program_level: str,
-    university_list: List[str],
-    user_budget: float,
-    destination: str,
+    intake: str,
     applicant_availability: Optional[str],
+    location: str,
+    preferences: str,
     agents: Dict[str, Agent],
 ) -> List[Task]:
     """Build tasks for checklist generation, cost planning, and timeline planning flows."""
@@ -281,8 +289,8 @@ def create_university_planning_tasks(
             considering the applicant’s nationality and program level:
 
             - Applicant nationality: {nationality}
-            - Program level: {program_level}
-            - Universities: {university_list}
+            - Program level: {level}
+            - Universities: {university}
             """,
             expected_output="""
             A JSON array of checklists, one per university, each item:
@@ -376,23 +384,34 @@ def create_university_planning_tasks(
     if "deadline_extractor_agent" in agents:
         t4 = Task(
             description=f"""
-            Scrape and consolidate application deadlines for:
-            - Universities: {university_list}
-            - Program level: {program_level}
+            As of {time.strftime("%Y-%m-%d")}, scrape and consolidate application deadlines for:
+            - Universities: {universities}
+            - Program level: {level}
+            - Target intake period: {intake}
 
-            Extract:
-            • Application start/end
-            • Essay submission
-            • Interview windows
-            • Scholarship deadlines
+            Extract the following date information:
+            • Application start and end dates
+            • Essay submission deadline
+            • Interview periods (with start and end)
+            • Scholarship application deadlines
+
+
             """,
             expected_output="""
             A JSON object:
-            - application_start: date
-            - application_end: date
-            - essay_deadline: date
-            - interview_periods: list of { start: date, end: date }
-            - scholarship_deadlines: list of dates
+            - deadlines: a list of objects, each containing:
+                - university: string
+                - application_start: date
+                - application_end: date
+                - essay_deadline: date 
+                - interview_periods: list of objects with:
+                    - start: date
+                    - end: date
+                - scholarship_deadlines: list of dates
+
+                NOTE: If no data is available, return an empty string or list accordingly.
+
+            
             """,
             agent=agents["deadline_extractor_agent"],
             output_file=_path(DEADLINES_FILE),
@@ -405,19 +424,28 @@ def create_university_planning_tasks(
     if "timeline_generator_agent" in agents and "deadlines" in ctx:
         t5 = Task(
             description=f"""
-            Build an interactive application timeline using:
+            As of {time.strftime("%Y-%m-%d")}, build a personalized application timeline using:
             - Extracted deadlines: {{{{steps.deadlines.output}}}}
-            - Applicant availability preferences: {applicant_availability or "none"}
+            - Applicant's availability preferences: {applicant_availability}
+            - Target intake period: {intake}
 
-            Suggest optimal slots for:
-            • Essay drafts & revisions
-            • Document uploads
-            • Interview prep
-            • Scholarship applications
+            The timeline should propose optimal time slots for:
+            • Writing and revising essays
+            • Uploading supporting documents
+            • Preparing for interviews
+            • Applying for scholarships
+
+            Note: Timeline must not include dates prior to {time.strftime("%Y-%m-%d")}.
+            
+            Include each university’s key dates only in the deadlines:
+            application start and end dates, essay submission deadline, interview periods, and scholarship application deadlines.
+
+
             """,
             expected_output="""
             A JSON timeline:
-            - events: list of { date: date, task: string }
+            - deadlines: list of { date, name: string}
+            - events: list of { date: date, task: string}
             - suggestions: list of { task: string, recommended_date: date }
             """,
             agent=agents["timeline_generator_agent"],

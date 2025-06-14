@@ -37,6 +37,11 @@ def main():
                 title="Cost Breakdown",
                 icon="💵",
             ),
+            st.Page(
+                "pages/5_Timeline_Planner.py",
+                title="Timeline Planner",
+                icon="🗓️",
+            ),
         ]
     )
     pg.run()

@@ -186,17 +186,16 @@ def cost_breakdown_crew(
     # build only the cost-breakdown tasks
     tasks = create_university_planning_tasks(
         session_id=session_id,
+        universities=[],
         university=university,
         course=course,
+        level="",
         applicant_type=applicant_type,
+        nationality="",
+        intake="",
+        applicant_availability="",
         location=location,
         preferences=preferences,
-        nationality= "",
-        program_level= "",
-        university_list = [],
-        user_budget = 0.0,
-        destination = "",
-        applicant_availability = "",
         agents=selected_agents,
     )
 
@@ -215,8 +214,11 @@ def cost_breakdown_crew(
 
 def create_timeline_generator_crew(
     session_id: str,
-    university_list: List[str],
-    program_level: str,
+    universities: list,
+    level: str,
+    applicant_type: str,
+    nationality: str,
+    intake: str,
     applicant_availability: str = None,
 ) -> Tuple:
     """
@@ -239,18 +241,20 @@ def create_timeline_generator_crew(
         if name in agents
     }
 
-    # build only the timeline tasks
     tasks = create_university_planning_tasks(
         session_id=session_id,
-        nationality="",  # unused in this flow
-        program_level=program_level,
-        university_list=university_list,
-        user_budget=0.0,  # unused in this flow
-        destination="",  # unused in this flow
+        universities=universities,
+        university="",
+        course="",
+        level=level,
+        applicant_type=applicant_type,
+        nationality=nationality,
+        intake = intake,
         applicant_availability=applicant_availability,
+        location="",
+        preferences="",
         agents=selected_agents,
     )
-
     crew = Crew(
         agents=list(selected_agents.values()),
         tasks=tasks,

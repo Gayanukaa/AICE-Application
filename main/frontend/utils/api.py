@@ -139,3 +139,57 @@ def get_cost_breakdown_result(session_id: str) -> dict:
     return resp.json()
 
 
+def create_timeline_planner_session(
+    user_id: str,
+    universities: list,
+    level: str,
+    applicant_type: str,
+    nationality: str,
+    intake: str,
+    applicant_availability: str
+) -> str:
+    """
+    POST /sessions/timeline
+    Returns the new session_id or error information.
+    """
+    payload = {
+        "user_id": user_id,
+        "universities": universities,
+        "level": level,
+        "applicant_type": applicant_type,
+        "nationality": nationality,
+        "intake": intake,
+        "applicant_availability": applicant_availability
+    }
+    try:
+        resp = httpx.post(f"{API_BASE_URL}/sessions/timeline", json=payload)
+        resp.raise_for_status()
+        return resp.json()["session_id"]
+    except httpx.HTTPStatusError as exc:
+        return {
+            "error": "HTTPStatusError",
+            "status_code": exc.response.status_code,
+            "response_text": exc.response.text,
+            "payload": payload
+        }
+
+
+def get_timeline_status(session_id: str) -> dict:
+    """
+    GET /sessions/timeline/{session_id}/status
+    Returns {"session_id": ..., "status": ...}.
+    """
+    resp = httpx.get(f"{API_BASE_URL}/sessions/timeline/{session_id}/status")
+    resp.raise_for_status()
+    return resp.json()
+
+
+def get_timeline_result(session_id: str) -> dict:
+    """
+    GET /sessions/timeline/{session_id}/result
+    Returns timeline results.
+    """
+    resp = httpx.get(f"{API_BASE_URL}/sessions/timeline/{session_id}/result")
+    resp.raise_for_status()
+    return resp.json()
+

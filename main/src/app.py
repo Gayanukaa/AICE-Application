@@ -305,26 +305,34 @@ def start_timeline_planner(payload: Dict[str, Any], background_tasks: Background
     Start an Interactive Application Timeline session.
     Expects JSON with:
       - user_id: str
-      - university_list: List[str]
-      - program_level: str
+      - universities: list
+      - level: str
+      - applicant_type: str
+      - nationality: str
+      - intake: str
       - applicant_availability: Optional[str]
     Returns:
       - session_id: str
     """
     user_id = payload.get("user_id")
-    university_list = payload.get("university_list")
-    program_level = payload.get("program_level")
+    universities = payload.get("universities")
+    level = payload.get("level")
+    applicant_type = payload.get("applicant_type")
+    nationality = payload.get("nationality")
+    intake = payload.get("intake")
     applicant_availability = payload.get("applicant_availability")
 
-    if (
-        not user_id
-        or not isinstance(university_list, list)
-        or not isinstance(program_level, str)
-    ):
-        raise HTTPException(status_code=400, detail="Missing or invalid fields")
+    if not all([user_id, universities, level, applicant_type, nationality]):
+        raise HTTPException(status_code=400, detail="Missing required fields")
 
     session_id = db.create_timeline_session(
-        user_id, university_list, program_level, applicant_availability
+        user_id=user_id,
+        universities=universities,
+        level=level,
+        applicant_type=applicant_type,
+        nationality=nationality,
+        intake=intake,
+        applicant_availability=applicant_availability,
     )
 
     background_tasks.add_task(
@@ -332,8 +340,11 @@ def start_timeline_planner(payload: Dict[str, Any], background_tasks: Background
         session_id,
         {
             "flow_type": "timeline",
-            "university_list": university_list,
-            "program_level": program_level,
+            "universities": universities,
+            "level": level,
+            "applicant_type": applicant_type,
+            "nationality": nationality,
+            "intake": intake,
             "applicant_availability": applicant_availability,
         },
     )

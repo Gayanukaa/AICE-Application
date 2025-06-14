@@ -201,31 +201,30 @@ def generate_application_planning_background(
 
             result, tasks = create_timeline_generator_crew(
                 session_id=session_id,
-                university_list=session_data["university_list"],
-                program_level=session_data["program_level"],
+                universities=session_data["universities"],
+                level=session_data["level"],
+                applicant_type=session_data["applicant_type"],
+                nationality=session_data["nationality"],
+                intake=session_data["intake"],
                 applicant_availability=session_data.get("applicant_availability"),
             )
             logger.info("Timeline generator crew run complete")
-
+        
             deadlines = None
             timeline = None
             for task in tasks:
                 logger.debug(f"Evaluating task: {task.description}")
                 desc = task.description.strip().lower()
                 raw = task.output.raw
-                if (
-                    "deadline extractor" in task.agent.role.lower()
-                    or "extract deadlines" in desc
-                ):
+                if (task.agent.role == "Deadline Extractor"):
                     deadlines = json.loads(raw) if _is_json(raw) else raw
+                    deadlines = deadlines.get("deadlines",{})
                     logger.info(f"Deadlines extracted: {deadlines}")
-                elif (
-                    "timeline generator" in task.agent.role.lower()
-                    or "generate timeline" in desc
-                ):
+                elif (task.agent.role == "Timeline Generator"):
                     timeline = json.loads(raw) if _is_json(raw) else raw
                     logger.info(f"Timeline generated: {timeline}")
 
+            
             db.save_timeline(session_id, deadlines, timeline)
             logger.info("Timeline data saved to DB")
 

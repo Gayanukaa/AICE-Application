@@ -285,7 +285,7 @@ def create_university_planning_agents(
         ),
         allow_delegation=False,
         llm=get_llm(deadline_extractor_model, deadline_extractor_temperature),
-        # tools=[scrape_university_deadlines_tool],
+        tools=[SearchTool()],
     )
     """
     Output from Deadline Extractor Agent: "application_start", "application_end",
@@ -304,7 +304,7 @@ def create_university_planning_agents(
         ),
         allow_delegation=False,
         llm=get_llm(timeline_planner_model, timeline_planner_temperature),
-        # tools=[create_timeline_tool, send_reminders_tool],
+        tools=[SearchTool()],
     )
 
     return {

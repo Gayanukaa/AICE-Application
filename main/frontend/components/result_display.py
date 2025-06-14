@@ -2,9 +2,10 @@
 
 import time
 import pandas as pd
-
-
 import streamlit as st
+from streamlit_timeline import timeline
+import json
+
 from utils.api import (
     get_essay_result,
     get_essay_status,
@@ -12,6 +13,8 @@ from utils.api import (
     get_program_analysis_status,
     get_cost_breakdown_result,
     get_cost_breakdown_status,
+    get_timeline_status,
+    get_timeline_result,
 
 )
 
@@ -168,3 +171,103 @@ def display_cost_breakdown_results(
             st.markdown(f"**{selected_fee}**")
             st.info(expenses[selected_fee]["description"])
       
+
+def display_timeline_planner_results(
+    session_id: str, timeout: int = 60, interval: float = 2.0
+):
+    """Poll with a spinner, then nicely render program-analysis outputs."""
+    st.subheader("📊 Timeline Planner Results")
+
+    # --- Polling loop ---
+    status = None
+    start = time.time()
+    with st.spinner("Waiting for the program-analysis agents to finish…"):
+        while time.time() - start < timeout:
+            resp = get_timeline_status(session_id)
+            if resp["status"] in ("completed", "failed"):
+                status = resp
+                break
+            time.sleep(interval)
+
+    if status is None:
+        st.error("⏱️ Timed out waiting for results. Try refreshing.")
+        return
+
+    st.write(f"**Status:** {status['status'].capitalize()}")
+
+    if status["status"] == "failed":
+        st.error(f"⚠️ Error: {status.get('error', 'Unknown error')}")
+        return
+
+    # --- Fetch results ---
+    response = get_timeline_result(session_id)
+
+    #Deadlines
+    st.header("University Deadlines")
+    for uni in response['deadlines']:
+        st.subheader(uni['university'])
+
+        # Handle interview periods (multiple entries possible)
+        interview_periods_raw = uni.get('interview_periods', [])
+        interview_periods = (
+            [f"{p['start']} to {p['end']}" for p in interview_periods_raw if p.get('start') and p.get('end')]
+            or ["No deadlines found"]
+        )
+
+        
+        deadline_table = {
+            "Application Start": uni.get('application_start') or "No deadlines found",
+            "Application End": uni.get('application_end') or "No deadlines found",
+            "Essay Deadline": uni.get('essay_deadline') or "No deadlines found",
+            "Interview Periods": interview_periods,
+            "Scholarship Deadlines": uni.get('scholarship_deadlines') or ["No deadlines found"],
+        }
+
+        # Convert list values to comma-separated strings
+        formatted_deadline_table = {k: v if isinstance(v, str) else ', '.join(v) for k, v in deadline_table.items()}
+
+        # Convert to DataFrame with appropriate column names
+        df = pd.DataFrame(list(formatted_deadline_table.items()), columns=["Deadline Type", "Date(s)"])
+        st.table(df)
+    # Timeline 
+    timeline_events = []
+
+    # Add regular timeline events
+    for event in response['timeline']['events']:
+        year, month, day = map(int, event['date'].split('-'))
+        
+        timeline_events.append({
+            "start_date": {"year": year, "month": month, "day": day},
+            "text": {"text": event['task']},
+            "background": {"color": "#2E2E2E"},
+            "group": "Timeline"
+        })
+
+    for deadline in response['timeline']['deadlines']:
+        year, month, day = map(int, deadline['date'].split('-'))
+
+        timeline_events.append({
+            "start_date": {"year": year, "month": month, "day": day},
+            "text": {"headline": deadline['name']},
+            "background": {"color": "#8A041E"},
+            "group": "Timeline"
+        })
+ 
+    timeline_data = {
+        "title": {"text": {"text": "Application Timeline"}},
+        "events": timeline_events
+    }
+    
+
+    st.header("Timeline")
+    timeline(json.dumps(timeline_data), height=500)
+
+
+    #Suggestions
+    st.header("Suggestions")
+    suggestion_lines = [
+        f"- **{s['task']}** — _{s['recommended_date']}_"
+        for s in response['timeline']['suggestions']
+
+    ]
+    st.markdown("\n".join(suggestion_lines))
