@@ -286,7 +286,7 @@ def get_dynamic_checklist(session_id: str) -> Dict[str, Any]:
     db = read_db()
     if session_id not in db["dynamic_checklists"]:
         raise KeyError(f"No checklist for session {session_id}")
-    return db["dynamic_checklists"][session_id]
+    return db["dynamic_checklists"][session_id].get("checklist")
 
 
 def delete_checklist_session(session_id: str) -> None:

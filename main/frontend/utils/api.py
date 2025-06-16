@@ -193,3 +193,51 @@ def get_timeline_result(session_id: str) -> dict:
     resp.raise_for_status()
     return resp.json()
 
+
+
+def create_checklist_session(
+    user_id: str,
+    nationality: str,
+    program_level: str,
+    universities: list
+) -> str:
+    """
+    POST /sessions/checklist
+    Returns the new session_id or error information.
+    """
+    payload = {
+        "user_id": user_id,
+        "nationality": nationality,
+        "program_level": program_level,
+        "university_list": universities
+    }
+    try:
+        resp = httpx.post(f"{API_BASE_URL}/sessions/checklist", json=payload)
+        resp.raise_for_status()
+        return resp.json()["session_id"]
+    except httpx.HTTPStatusError as exc:
+        return {
+            "error": "HTTPStatusError",
+            "status_code": exc.response.status_code,
+            "response_text": exc.response.text,
+            "payload": payload
+        }
+
+
+def get_checklist_status(session_id: str) -> dict:
+    """
+    GET /sessions/checklist/{session_id}/status
+    Returns {"session_id": ..., "status": ...}.
+    """
+    resp = httpx.get(f"{API_BASE_URL}/sessions/checklist/{session_id}/status")
+    resp.raise_for_status()
+    return resp.json()
+
+def get_checklist_result(session_id: str) -> dict:
+    """
+    GET /sessions/checklist/{session_id}/result
+    Returns {"dynamic_checklist": ...}.
+    """
+    resp = httpx.get(f"{API_BASE_URL}/sessions/checklist/{session_id}/result")
+    resp.raise_for_status()
+    return resp.json()

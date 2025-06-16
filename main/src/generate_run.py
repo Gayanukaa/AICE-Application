@@ -150,7 +150,7 @@ def generate_application_planning_background(
                 logger.debug(f"Evaluating task: {task.description}")
                 desc = task.description.strip().lower()
                 raw = task.output.raw
-                if "checklist" in desc:
+                if task.agent.role == "Dynamic Application Checklist Generator":
                     checklist = json.loads(raw) if _is_json(raw) else raw
                     logger.info(f"Checklist generated: {checklist}")
                     break

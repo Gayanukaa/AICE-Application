@@ -64,6 +64,8 @@ class Checklist(BaseModel):
     university: str
     items: List[ChecklistItem]
 
+class ChecklistGroup(BaseModel):
+    checklists: List[Checklist]
 
 
 class RawFees(BaseModel):
@@ -290,17 +292,19 @@ def create_university_planning_tasks(
 
             - Applicant nationality: {nationality}
             - Program level: {level}
-            - Universities: {university}
+            - Universities: {universities}
             """,
-            expected_output="""
-            A JSON array of checklists, one per university, each item:
-            - document: string
-            - required: bool
-            - notes: optional string
+            expected_output = """
+            JSON object with a key 'checklists' (list), where each item contains:
+            - university (str)
+            - items (list of):
+            - document (str)
+            - required (bool)
+            - notes (optional str)
             """,
-            agent=agents["dynamic_checklist_agent"],
+            agent = agents["dynamic_checklist_agent"],
             output_file=_path(DYNAMIC_CHECKLIST_FILE),
-            output_json=Checklist,
+            output_json=ChecklistGroup,
         )
         tasks.append(t1)
         ctx["checklist"] = t1

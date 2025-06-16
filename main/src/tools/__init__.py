@@ -66,7 +66,7 @@ def fetch_university_admission_info(
                      Possible values include:
                         - "entry requirements"
                         - "admission deadlines"
-                        - "fees/cost"
+                        - "tution fees/cost"
                         - "scholarships/grants"
                         - "university ranking"
                         - "subject ranking"

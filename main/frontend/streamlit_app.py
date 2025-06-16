@@ -42,6 +42,11 @@ def main():
                 title="Timeline Planner",
                 icon="🗓️",
             ),
+            st.Page(
+                "pages/6_Checklist.py",
+                title="Checklist Generator",
+                icon="📋",
+            )
         ]
     )
     pg.run()

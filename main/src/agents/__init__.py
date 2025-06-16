@@ -221,7 +221,7 @@ def create_university_planning_agents(
         ),
         allow_delegation=False,
         llm=get_llm(dynamic_checklist_model, dynamic_checklist_temperature),
-        # tools=[generate_checklist_tool],
+        tools=[SearchTool()],
     )
 
     # 1a. University Fee Retriever Agent

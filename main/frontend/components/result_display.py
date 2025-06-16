@@ -15,9 +15,9 @@ from utils.api import (
     get_cost_breakdown_status,
     get_timeline_status,
     get_timeline_result,
-
+    get_checklist_result,
+    get_checklist_status,
 )
-
 
 def display_essay_results(session_id: str, timeout: int = 60, interval: float = 2.0):
     """Poll with a spinner, then render results for an essay-writing session."""
@@ -178,7 +178,6 @@ def display_timeline_planner_results(
     """Poll with a spinner, then nicely render program-analysis outputs."""
     st.subheader("📊 Timeline Planner Results")
 
-    # --- Polling loop ---
     status = None
     start = time.time()
     with st.spinner("Waiting for the program-analysis agents to finish…"):
@@ -199,7 +198,6 @@ def display_timeline_planner_results(
         st.error(f"⚠️ Error: {status.get('error', 'Unknown error')}")
         return
 
-    # --- Fetch results ---
     response = get_timeline_result(session_id)
 
     #Deadlines
@@ -207,14 +205,12 @@ def display_timeline_planner_results(
     for uni in response['deadlines']:
         st.subheader(uni['university'])
 
-        # Handle interview periods (multiple entries possible)
         interview_periods_raw = uni.get('interview_periods', [])
         interview_periods = (
             [f"{p['start']} to {p['end']}" for p in interview_periods_raw if p.get('start') and p.get('end')]
             or ["No deadlines found"]
         )
 
-        
         deadline_table = {
             "Application Start": uni.get('application_start') or "No deadlines found",
             "Application End": uni.get('application_end') or "No deadlines found",
@@ -223,16 +219,14 @@ def display_timeline_planner_results(
             "Scholarship Deadlines": uni.get('scholarship_deadlines') or ["No deadlines found"],
         }
 
-        # Convert list values to comma-separated strings
         formatted_deadline_table = {k: v if isinstance(v, str) else ', '.join(v) for k, v in deadline_table.items()}
 
-        # Convert to DataFrame with appropriate column names
         df = pd.DataFrame(list(formatted_deadline_table.items()), columns=["Deadline Type", "Date(s)"])
         st.table(df)
+
     # Timeline 
     timeline_events = []
 
-    # Add regular timeline events
     for event in response['timeline']['events']:
         year, month, day = map(int, event['date'].split('-'))
         
@@ -271,3 +265,50 @@ def display_timeline_planner_results(
 
     ]
     st.markdown("\n".join(suggestion_lines))
+
+
+def display_checklist_results(session_id: str, timeout: int = 60, interval: float = 2.0):
+    """Poll with a spinner, then render results for the dynamic application checklist."""
+    st.subheader("📋 Application Checklist Results")
+
+    status = None
+    start = time.time()
+    with st.spinner("Waiting for the checklist agents to finish…"):
+        while time.time() - start < timeout:
+            resp = get_checklist_status(session_id)
+            if resp["status"] in ("completed", "failed"):
+                status = resp
+                break
+            time.sleep(interval)
+
+    if status is None:
+        st.error("⏱️ Timed out waiting for results. Try refreshing.")
+        return
+
+    st.write(f"**Status:** {status['status'].capitalize()}")
+
+    if status["status"] == "failed":
+        st.error(f"⚠️ Error: {status.get('error', 'Unknown error')}")
+        return
+
+    # Completed: fetch results
+    response = get_checklist_result(session_id)
+    result = response.get("dynamic_checklist", {})
+    checklists = result.get("checklists", [])
+
+    if not checklists:
+        st.warning("No checklists found.")
+        return
+
+    # Display each university's checklist
+    for uni_checklist in checklists:
+        st.markdown(f"## 🎓 {uni_checklist['university'].upper()}")
+        for i, item in enumerate(uni_checklist["items"], 1):
+            doc = item["document"]
+            required = "✅ Required" if item["required"] else "🟡 Optional"
+            notes = item.get("notes", "")
+            with st.container():
+                st.markdown(f"**{i}. 📄 {doc}**  \n{required}")
+                if notes:
+                    st.info(notes)
+        st.markdown("---")
