@@ -227,42 +227,46 @@ def display_timeline_planner_results(
     # Timeline 
     timeline_events = []
 
+    # Process events
     for event in response['timeline']['events']:
-        year, month, day = map(int, event['date'].split('-'))
-        
-        timeline_events.append({
-            "start_date": {"year": year, "month": month, "day": day},
-            "text": {"text": event['task']},
-            "background": {"color": "#2E2E2E"},
-            "group": "Timeline"
-        })
+        try:
+            year, month, day = map(int, event['date'].split('-'))
+            timeline_events.append({
+                "start_date": {"year": year, "month": month, "day": day},
+                "text": {"text": event['task']},
+                "background": {"color": "#2E2E2E"},
+                "group": "Timeline"
+            })
+        except (ValueError, AttributeError):
+            st.warning(f"Invalid date format for event: {event}")
 
+    # Process deadlines
     for deadline in response['timeline']['deadlines']:
-        year, month, day = map(int, deadline['date'].split('-'))
+        try:
+            year, month, day = map(int, deadline['date'].split('-'))
+            timeline_events.append({
+                "start_date": {"year": year, "month": month, "day": day},
+                "text": {"headline": deadline['name']},
+                "background": {"color": "#8A041E"},
+                "group": "Timeline"
+            })
+        except (ValueError, AttributeError):
+            st.warning(f"Invalid date format for deadline: {deadline}")
 
-        timeline_events.append({
-            "start_date": {"year": year, "month": month, "day": day},
-            "text": {"headline": deadline['name']},
-            "background": {"color": "#8A041E"},
-            "group": "Timeline"
-        })
- 
+    # Timeline visualization
     timeline_data = {
         "title": {"text": {"text": "Application Timeline"}},
         "events": timeline_events
     }
-    
 
     st.header("Timeline")
     timeline(json.dumps(timeline_data), height=500)
 
-
-    #Suggestions
+    # Suggestions section
     st.header("Suggestions")
     suggestion_lines = [
         f"- **{s['task']}** — _{s['recommended_date']}_"
         for s in response['timeline']['suggestions']
-
     ]
     st.markdown("\n".join(suggestion_lines))
 
@@ -303,12 +307,12 @@ def display_checklist_results(session_id: str, timeout: int = 60, interval: floa
     # Display each university's checklist
     for uni_checklist in checklists:
         st.markdown(f"## 🎓 {uni_checklist['university'].upper()}")
-        for i, item in enumerate(uni_checklist["items"], 1):
+        for idx, item in enumerate(uni_checklist["items"], start=1):
             doc = item["document"]
             required = "✅ Required" if item["required"] else "🟡 Optional"
             notes = item.get("notes", "")
             with st.container():
-                st.markdown(f"**{i}. 📄 {doc}**  \n{required}")
+                st.markdown(f"**{idx}. 📄 {doc}**  \n{required}")
                 if notes:
                     st.info(notes)
         st.markdown("---")
