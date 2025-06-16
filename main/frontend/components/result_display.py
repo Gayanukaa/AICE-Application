@@ -19,6 +19,11 @@ from utils.api import (
     get_checklist_status,
 )
 
+def stream_paragraph(paragraph):
+        for word in paragraph.split():
+            yield word + " "
+            time.sleep(0.05)
+
 def display_essay_results(session_id: str, timeout: int = 60, interval: float = 2.0):
     """Poll with a spinner, then render results for an essay-writing session."""
     st.subheader("📝 Essay Writing Results")
@@ -65,10 +70,10 @@ def display_essay_results(session_id: str, timeout: int = 60, interval: float = 
 
     # Refined Essay
     st.markdown("### ✍️ Refined Essay")
-    for paragraph in refined_text.split("\n\n"):
-        st.write(paragraph)
-        st.markdown("")  # paragraph spacing
 
+    for paragraph in refined_text.split("\n\n"):
+        st.write_stream(stream_paragraph(paragraph))
+        st.markdown("")
 
 def display_program_analysis_results(
     session_id: str, timeout: int = 60, interval: float = 2.0
