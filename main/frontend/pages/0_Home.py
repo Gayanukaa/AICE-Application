@@ -53,40 +53,71 @@ st.markdown("---")
 
 # --- Features section ---
 st.markdown("<h2>🚀 Features</h2>", unsafe_allow_html=True)
+
+# First Row
 col1, col2 = st.columns(2)
 with col1:
     st.markdown(
         """
         #### 📝 Essay Writing Assistant
-        - Structure & outline your essays
-        - Grammar, tone & clarity improvements
-        - University-specific feedback in real time
+        - Structure and refine personal and supplemental essays  
+        - Grammar, tone, and clarity improvements  
+        - Real-time, university-specific feedback
         """,
         unsafe_allow_html=True,
     )
 with col2:
     st.markdown(
         """
-        #### 🌐 University Info Retrieval
-        - Scrape admissions requirements & deadlines
-        - Fetch fees & scholarship data
-        - Normalize into consistent JSON schema
+        #### 📊 Program Analysis
+        - Compare programs side-by-side  
+        - Analyze cost, ranking, curriculum & career outcomes  
+        - Actionable recommendations
         """,
         unsafe_allow_html=True,
     )
+
+# Second Row
 col3, col4 = st.columns(2)
 with col3:
     st.markdown(
         """
-        #### 📈 Program Comparison Agent
-        - Side-by-side cost & ranking analysis
-        - Compare curriculum & funding opportunities
-        - Actionable recommendation reports
+        #### 🕵️ Sentiment Analysis
+        - Analyze student feedback from Reddit & forums  
+        - Summarize insights on academics, campus life & more
         """,
         unsafe_allow_html=True,
     )
 with col4:
-    st.markdown(" ")  # placeholder for symmetry
+    st.markdown(
+        """
+        #### 💵 Cost Breakdown
+        - Personalized cost estimate for a selected university  
+        - Includes tuition, accommodation, living, visa, travel, and other expenses
+        """,
+        unsafe_allow_html=True,
+    )
+
+# Third Row
+col5, col6 = st.columns(2)
+with col5:
+    st.markdown(
+        """
+        #### 🗓️ Timeline Planner
+        - Visualize deadlines and interview schedules  
+        - Suggests optimal dates for task completion
+        """,
+        unsafe_allow_html=True,
+    )
+with col6:
+    st.markdown(
+        """
+        #### 📋 Checklist Generator
+        - Dynamic document checklists for each university  
+        - Tailored by applicant profile and program needs
+        """,
+        unsafe_allow_html=True,
+    )
 
 st.markdown("---")
 
