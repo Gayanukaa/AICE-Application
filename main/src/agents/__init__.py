@@ -5,10 +5,10 @@ from crewai import LLM, Agent
 from dotenv import load_dotenv
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from tools import (
-    read_comparison_instructions,
     SearchTool,
     fetch_university_admission_info,
     fetch_university_fees,
+    read_comparison_instructions,
 )
 from utils import get_config_value, load_config
 
