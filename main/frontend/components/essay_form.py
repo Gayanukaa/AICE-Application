@@ -6,7 +6,7 @@ def show_essay_form(user_id: str):
     """Display the essay-writing form and return a new session_id (or None)."""
     st.header("Essay Writing Assistant")
     if not user_id:
-        st.warning("Please enter your User ID in the sidebar.")
+        st.warning("Please enter your name in the sidebar.")
         return None
 
     essay_text = st.text_area(

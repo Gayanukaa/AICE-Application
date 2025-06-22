@@ -11,3 +11,4 @@ fastapi
 uvicorn
 crewai[tools]
 nltk
+streamlit_timeline

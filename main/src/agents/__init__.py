@@ -4,8 +4,8 @@ from typing import Union
 from crewai import LLM, Agent
 from dotenv import load_dotenv
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
-from tools import (  # extract_relevant_content,
-    Read_comparison_instructions,
+from tools import (
+    read_comparison_instructions,
     SearchTool,
     fetch_university_admission_info,
     fetch_university_fees,
@@ -89,7 +89,7 @@ def create_college_exploration_agents(
         role="Essay Refinement Agent",
         goal=(
             "Refine and polish the uploaded essay text {essay_text} using the outline and "
-            "{style_guidelines}: correct grammar, improve tone, and enhance clarity."
+            "{style_guidelines}: correct grammar and under those style guidelines."
             "First THINK through each section you will propose (in plain English, preceded by “THOUGHT: …”), then output the final JSON ONLY under a ###Final Answer### heading."
         ),
         backstory=(
@@ -150,7 +150,7 @@ def create_college_exploration_agents(
         response_template="",
         allow_delegation=False,
         llm=get_llm(program_comparison_model, program_comparison_temperature),
-        tools=[Read_comparison_instructions],
+        tools=[read_comparison_instructions],
     )
 
     return {

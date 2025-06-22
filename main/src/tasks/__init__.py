@@ -195,9 +195,9 @@ def create_college_exploration_tasks(
             {{{{steps.essay_brainstorm.outline}}}}
 
             Apply:
-            1. Grammar, spelling, and punctuation correction.
-            2. Tone and clarity enhancement.
-            3. Alignment with university-specific expectations using {style_guidelines}.
+
+            1. Alignment with university-specific expectations using {style_guidelines}.
+            2. Grammar, spelling, and punctuation correction.
             """,
             expected_output="""
             A JSON object with:
@@ -257,7 +257,7 @@ def create_college_exploration_tasks(
 
             If suitable information for the {comparison_criteria} is not available, indicate that the data could not be found.
             """,
-            expected_output="A user-friendly summary report highlighting the key differences between the programs. Present the output according to the specified markdown format in the Comp_Instructions.md file",
+            expected_output="A user-friendly summary report highlighting the key differences between the programs. Present the output according to the specified markdown format in the comp_instructions.md file",
             agent=agents["program_comparison_agent"],
             output_file=_path(PROGRAM_COMPARISON_REPORT_FILE),
             # output_json=ProgramComparisonReport,

@@ -6,7 +6,7 @@ def show_analysis_form(user_id: str):
     """Display the program-analysis form and return a new session_id (or None)."""
     st.header("Program Analysis")
     if not user_id:
-        st.warning("Please enter your User ID in the sidebar.")
+        st.warning("Please enter your name in the sidebar.")
         return None
 
     uni_input = st.text_area(

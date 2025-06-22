@@ -8,7 +8,7 @@ user_id = render_sidebar()
 
 
 if not user_id:
-    st.warning("Please enter your **User ID** in the sidebar.")
+    st.warning("Please enter your **name** in the sidebar.")
 else:
     session_id = show_cost_form(user_id)
 

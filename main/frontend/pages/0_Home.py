@@ -62,7 +62,6 @@ with col1:
         #### 📝 Essay Writing Assistant
         - Structure and refine personal and supplemental essays
         - Grammar, tone, and clarity improvements
-        - Real-time, university-specific feedback
         """,
         unsafe_allow_html=True,
     )

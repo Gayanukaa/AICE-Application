@@ -41,8 +41,8 @@ def extract_main_links(data):
     return links
 
 
-@tool("Read_comparison_instructions")
-def Read_comparison_instructions() -> str:
+@tool("read_comparison_instructions")
+def read_comparison_instructions() -> str:
     """
     Loads a markdown file containing guidelines for comparing universities
     and formatting the information in markdown.
@@ -50,7 +50,7 @@ def Read_comparison_instructions() -> str:
     Returns:
         str: Markdown-formatted instructions for university comparison.
     """
-    instructions = file_read_tool._run(file_path=r"tools\Comp_Instructions.md")
+    instructions = file_read_tool._run(file_path="tools/comp_instructions.md")
     return instructions
 
 

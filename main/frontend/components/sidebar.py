@@ -2,7 +2,7 @@ import streamlit as st
 
 
 def render_sidebar():
-    """Render only the User ID prompt."""
+    """Render only the name prompt."""
     st.sidebar.title("AICE")
     user_id = st.sidebar.text_input("Name", help="Enter your user identifier")
     st.sidebar.markdown("---")

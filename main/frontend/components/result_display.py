@@ -32,7 +32,7 @@ def display_essay_results(session_id: str, timeout: int = 60, interval: float = 
 
     status = None
     start = time.time()
-    with st.spinner("Waiting for the essay agents to finish…"):
+    with st.spinner("Essay agents in action…"):
         while time.time() - start < timeout:
             resp = get_essay_status(session_id)
             if resp["status"] in ("completed", "failed"):
