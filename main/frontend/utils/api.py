@@ -92,14 +92,13 @@ def sentiment_analysis(reviews: list[str]) -> dict:
     return resp.json()
 
 
-
 def create_cost_breakdown_session(
     user_id: str,
     university: str,
     course: str,
     applicant_type: str,
     location: str,
-    preferences: str
+    preferences: str,
 ) -> str:
     """
     POST /sessions/cost-breakdown
@@ -146,7 +145,7 @@ def create_timeline_planner_session(
     applicant_type: str,
     nationality: str,
     intake: str,
-    applicant_availability: str
+    applicant_availability: str,
 ) -> str:
     """
     POST /sessions/timeline
@@ -159,7 +158,7 @@ def create_timeline_planner_session(
         "applicant_type": applicant_type,
         "nationality": nationality,
         "intake": intake,
-        "applicant_availability": applicant_availability
+        "applicant_availability": applicant_availability,
     }
     try:
         resp = httpx.post(f"{API_BASE_URL}/sessions/timeline", json=payload)
@@ -170,7 +169,7 @@ def create_timeline_planner_session(
             "error": "HTTPStatusError",
             "status_code": exc.response.status_code,
             "response_text": exc.response.text,
-            "payload": payload
+            "payload": payload,
         }
 
 
@@ -194,12 +193,8 @@ def get_timeline_result(session_id: str) -> dict:
     return resp.json()
 
 
-
 def create_checklist_session(
-    user_id: str,
-    nationality: str,
-    program_level: str,
-    universities: list
+    user_id: str, nationality: str, program_level: str, universities: list
 ) -> str:
     """
     POST /sessions/checklist
@@ -209,7 +204,7 @@ def create_checklist_session(
         "user_id": user_id,
         "nationality": nationality,
         "program_level": program_level,
-        "university_list": universities
+        "university_list": universities,
     }
     try:
         resp = httpx.post(f"{API_BASE_URL}/sessions/checklist", json=payload)
@@ -220,7 +215,7 @@ def create_checklist_session(
             "error": "HTTPStatusError",
             "status_code": exc.response.status_code,
             "response_text": exc.response.text,
-            "payload": payload
+            "payload": payload,
         }
 
 
@@ -232,6 +227,7 @@ def get_checklist_status(session_id: str) -> dict:
     resp = httpx.get(f"{API_BASE_URL}/sessions/checklist/{session_id}/status")
     resp.raise_for_status()
     return resp.json()
+
 
 def get_checklist_result(session_id: str) -> dict:
     """

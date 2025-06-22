@@ -248,8 +248,13 @@ def start_cost_breakdown(payload: Dict[str, Any], background_tasks: BackgroundTa
     location = payload.get("location")
     preferences = payload.get("preferences", "")
 
-    if not all(isinstance(field, str) for field in [user_id, university, course, applicant_type, location]):
-        raise HTTPException(status_code=400, detail="Missing or invalid required fields")
+    if not all(
+        isinstance(field, str)
+        for field in [user_id, university, course, applicant_type, location]
+    ):
+        raise HTTPException(
+            status_code=400, detail="Missing or invalid required fields"
+        )
 
     session_id = db.create_cost_breakdown_session(
         user_id, university, course, applicant_type, location, preferences
@@ -290,7 +295,7 @@ def get_cost_breakdown_result(session_id: str):
     Returns:
       - currency: string
       - expenses: dict
-      - total_cost: integer 
+      - total_cost: integer
     """
     result = db.get_cost_breakdown(session_id)
     return result

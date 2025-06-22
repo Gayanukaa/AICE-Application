@@ -46,7 +46,7 @@ def main():
                 "pages/6_Checklist.py",
                 title="Checklist Generator",
                 icon="📋",
-            )
+            ),
         ]
     )
     pg.run()

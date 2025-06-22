@@ -32,23 +32,25 @@ class SearchTool(BaseTool):
 file_read_tool = FileReadTool()
 search_uni = SerperDevTool()
 
+
 def extract_main_links(data):
-        links = []
-        for item in data.get("organic", []):
-            if "link" in item:
-                links.append(item["link"])
-        return links
+    links = []
+    for item in data.get("organic", []):
+        if "link" in item:
+            links.append(item["link"])
+    return links
+
 
 @tool("Read_comparison_instructions")
 def Read_comparison_instructions() -> str:
     """
-    Loads a markdown file containing guidelines for comparing universities 
+    Loads a markdown file containing guidelines for comparing universities
     and formatting the information in markdown.
 
     Returns:
         str: Markdown-formatted instructions for university comparison.
     """
-    instructions  = file_read_tool._run(file_path= r"tools\Comp_Instructions.md")
+    instructions = file_read_tool._run(file_path=r"tools\Comp_Instructions.md")
     return instructions
 
 
@@ -89,14 +91,17 @@ def fetch_university_admission_info(
         if url:
             content = ScrapeWebsiteTool(website_url=url).run()
             result = f"url: {url}\n" + content
-        
+
     except Exception as e:
         result = f"Error: {str(e)}"
 
     return result
 
+
 @tool("fetch_university_fees")
-def fetch_university_fees(university: str, course: str, origin: str, level: str) -> dict:
+def fetch_university_fees(
+    university: str, course: str, origin: str, level: str
+) -> dict:
     """
     Retrieves tuition fee and miscellaneous expense information for a given university program
     by scraping relevant university websites.
@@ -117,35 +122,42 @@ def fetch_university_fees(university: str, course: str, origin: str, level: str)
                 - "content": The raw text containing miscellaneous expense information.
     """
 
-
     result = {
         "tuition_fees": {"url": None, "content": "No results found"},
-        "miscellaneous_expenses": {"url": None, "content": "No results found"}
+        "miscellaneous_expenses": {"url": None, "content": "No results found"},
     }
 
     try:
-        tuition_fee_query = f"{university} {level} {course} {origin} student tuition fees"
+        tuition_fee_query = (
+            f"{university} {level} {course} {origin} student tuition fees"
+        )
         miscellaneous_expenses_query = f"{university} miscellaneous expenses"
 
         tf_url = extract_main_links(search_uni.run(search_query=tuition_fee_query))[0]
-        me_url = extract_main_links(search_uni.run(search_query=miscellaneous_expenses_query))[0]
+        me_url = extract_main_links(
+            search_uni.run(search_query=miscellaneous_expenses_query)
+        )[0]
 
         if tf_url:
             result["tuition_fees"]["url"] = tf_url
-            result["tuition_fees"]["content"] = ScrapeWebsiteTool(website_url=tf_url).run()
+            result["tuition_fees"]["content"] = ScrapeWebsiteTool(
+                website_url=tf_url
+            ).run()
 
         if me_url:
             result["miscellaneous_expenses"]["url"] = me_url
-            result["miscellaneous_expenses"]["content"] = ScrapeWebsiteTool(website_url=me_url).run()
+            result["miscellaneous_expenses"]["content"] = ScrapeWebsiteTool(
+                website_url=me_url
+            ).run()
 
         return result["miscellaneous_expenses"]
 
     except Exception as e:
         return {"error": str(e)}
 
+
 @tool("fetch_university_deadlines")
 def fetch_university_deadlines(university: str, origin: str, level: str) -> dict:
-
     """
     Fetches application and scholarship deadline information for a specific university program
     based on the applicant's origin and level of study. Performs a web search to locate relevant
@@ -170,35 +182,41 @@ def fetch_university_deadlines(university: str, origin: str, level: str) -> dict
     result = {
         "University deadlines": {"url": None, "content": "No results found"},
         "Scholarship deadlines": {"url": None, "content": "No results found"},
-
-    
     }
 
-
     try:
-        university_deadlines_query = f"{university} {origin} prospective {level} student application deadlines"
-        scholarships_deadlines_query = f"{university} {origin} prospective {level} student scholarship deadlines"
+        university_deadlines_query = (
+            f"{university} {origin} prospective {level} student application deadlines"
+        )
+        scholarships_deadlines_query = (
+            f"{university} {origin} prospective {level} student scholarship deadlines"
+        )
 
-       
-
-        ud_url = extract_main_links(search_uni.run(search_query=university_deadlines_query))[0]
-        sd_url = extract_main_links(search_uni.run(search_query=scholarships_deadlines_query))[0]
-
+        ud_url = extract_main_links(
+            search_uni.run(search_query=university_deadlines_query)
+        )[0]
+        sd_url = extract_main_links(
+            search_uni.run(search_query=scholarships_deadlines_query)
+        )[0]
 
         if ud_url:
             result["University deadlines"]["url"] = ud_url
-            result["University deadlines"]["content"] = ScrapeWebsiteTool(website_url=ud_url).run()
+            result["University deadlines"]["content"] = ScrapeWebsiteTool(
+                website_url=ud_url
+            ).run()
 
         if ud_url:
             result["Scholarship deadlines"]["url"] = ud_url
-            result["Scholarship deadlines"]["content"] = ScrapeWebsiteTool(website_url=sd_url).run()
-
+            result["Scholarship deadlines"]["content"] = ScrapeWebsiteTool(
+                website_url=sd_url
+            ).run()
 
         return result
 
     except Exception as e:
         return {"error": str(e)}
-    
+
+
 # @tool("extract_relavant_content")
 # def extract_relevant_content(field: str, text: str) -> dict:
 #     """
@@ -212,25 +230,25 @@ def fetch_university_deadlines(university: str, origin: str, level: str) -> dict
 #         text (str): The text to search through.
 
 #     Returns:
-    #         str: Combined snippets of matched sentences with context.
+#         str: Combined snippets of matched sentences with context.
 
-    #     """
+#     """
 
-    #     window_size = 4
+#     window_size = 4
 
-    #     sentences = re.split(r'(?<=[.!?])\s+', text)
-    #     field_lower = field.lower()
-    #     indexes = [i for i, sentence in enumerate(sentences) if field_lower in sentence.lower()]
-    #     if not indexes:
-    #         return ""
-    #     snippets = []
-    #     for idx in indexes:
-    #         start = max(0, idx - window_size)
-    #         end = min(len(sentences), idx + window_size + 1)
-    #         snippet = ' '.join(sentences[start:end]).strip()
-    #         snippets.append(snippet)
+#     sentences = re.split(r'(?<=[.!?])\s+', text)
+#     field_lower = field.lower()
+#     indexes = [i for i, sentence in enumerate(sentences) if field_lower in sentence.lower()]
+#     if not indexes:
+#         return ""
+#     snippets = []
+#     for idx in indexes:
+#         start = max(0, idx - window_size)
+#         end = min(len(sentences), idx + window_size + 1)
+#         snippet = ' '.join(sentences[start:end]).strip()
+#         snippets.append(snippet)
 
-    #     return {field: '\n\n'.join(snippets)}
+#     return {field: '\n\n'.join(snippets)}
 
 # def get_content(keyword: str, text: str):
 #     match = re.search(re.escape(keyword), text, re.IGNORECASE)

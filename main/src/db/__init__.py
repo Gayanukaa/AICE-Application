@@ -10,7 +10,7 @@ DB_FILENAME = os.path.join(os.path.dirname(__file__), "aice_db.json")
 
 def read_db() -> Dict[str, Any]:
     """Load the entire database, creating defaults if necessary."""
-    
+
     default = {
         "users": {},
         "essay_writing_sessions": {},
@@ -309,7 +309,6 @@ def create_cost_breakdown_session(
 
     session_id = str(uuid.uuid4())
 
-
     db["cost_breakdown_sessions"][session_id] = {
         "user_id": user_id,
         "university": university,
@@ -383,7 +382,6 @@ def create_timeline_session(
     }
     update_db(db)
     return session_id
-
 
 
 def get_timeline_session(session_id: str) -> Dict[str, Any]:

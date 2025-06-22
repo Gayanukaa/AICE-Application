@@ -60,8 +60,8 @@ with col1:
     st.markdown(
         """
         #### 📝 Essay Writing Assistant
-        - Structure and refine personal and supplemental essays  
-        - Grammar, tone, and clarity improvements  
+        - Structure and refine personal and supplemental essays
+        - Grammar, tone, and clarity improvements
         - Real-time, university-specific feedback
         """,
         unsafe_allow_html=True,
@@ -70,8 +70,8 @@ with col2:
     st.markdown(
         """
         #### 📊 Program Analysis
-        - Compare programs side-by-side  
-        - Analyze cost, ranking, curriculum & career outcomes  
+        - Compare programs side-by-side
+        - Analyze cost, ranking, curriculum & career outcomes
         - Actionable recommendations
         """,
         unsafe_allow_html=True,
@@ -83,7 +83,7 @@ with col3:
     st.markdown(
         """
         #### 🕵️ Sentiment Analysis
-        - Analyze student feedback from Reddit & forums  
+        - Analyze student feedback from Reddit & forums
         - Summarize insights on academics, campus life & more
         """,
         unsafe_allow_html=True,
@@ -92,7 +92,7 @@ with col4:
     st.markdown(
         """
         #### 💵 Cost Breakdown
-        - Personalized cost estimate for a selected university  
+        - Personalized cost estimate for a selected university
         - Includes tuition, accommodation, living, visa, travel, and other expenses
         """,
         unsafe_allow_html=True,
@@ -104,7 +104,7 @@ with col5:
     st.markdown(
         """
         #### 🗓️ Timeline Planner
-        - Visualize deadlines and interview schedules  
+        - Visualize deadlines and interview schedules
         - Suggests optimal dates for task completion
         """,
         unsafe_allow_html=True,
@@ -113,7 +113,7 @@ with col6:
     st.markdown(
         """
         #### 📋 Checklist Generator
-        - Dynamic document checklists for each university  
+        - Dynamic document checklists for each university
         - Tailored by applicant profile and program needs
         """,
         unsafe_allow_html=True,

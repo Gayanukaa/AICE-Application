@@ -134,16 +134,16 @@ def create_dynamic_checklist_crew(
     # build only the checklist tasks
     tasks = create_university_planning_tasks(
         session_id=session_id,
-        universities=university_list,      
-        university="",                  
-        course="",                       
-        level=program_level,             
-        applicant_type="",              
-        nationality=nationality,        
-        intake="",                       
-        applicant_availability="",       
-        location="",                     
-        preferences="",                  
+        universities=university_list,
+        university="",
+        course="",
+        level=program_level,
+        applicant_type="",
+        nationality=nationality,
+        intake="",
+        applicant_availability="",
+        location="",
+        preferences="",
         agents=selected_agents,
     )
 
@@ -215,7 +215,6 @@ def cost_breakdown_crew(
     return result, tasks
 
 
-
 def create_timeline_generator_crew(
     session_id: str,
     universities: list,
@@ -253,7 +252,7 @@ def create_timeline_generator_crew(
         level=level,
         applicant_type=applicant_type,
         nationality=nationality,
-        intake = intake,
+        intake=intake,
         applicant_availability=applicant_availability,
         location="",
         preferences="",

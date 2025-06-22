@@ -8,18 +8,25 @@ def show_checklist_form(user_id: str):
         universities_input = st.text_input(
             "Target Universities",
             placeholder="e.g., UNSW, University of Toronto, NUS",
-            help="Enter one or more universities separated by commas."
+            help="Enter one or more universities separated by commas.",
         )
     with col2:
         nationality = st.text_input(
             "Your Nationality",
             placeholder="e.g., Sri Lankan, Indian, American",
-            help="Used to customize your checklist based on visa and regional needs."
+            help="Used to customize your checklist based on visa and regional needs.",
         )
 
     program_level = st.selectbox(
         "Program Level",
-        ["Select Level", "Undergraduate", "Postgraduate", "PhD", "Diploma", "Certificate"]
+        [
+            "Select Level",
+            "Undergraduate",
+            "Postgraduate",
+            "PhD",
+            "Diploma",
+            "Certificate",
+        ],
     )
 
     if st.button("Generate Checklist"):
@@ -37,11 +44,9 @@ def show_checklist_form(user_id: str):
             user_id=user_id,
             nationality=nationality,
             program_level=program_level,
-            universities=universities
-
+            universities=universities,
         )
         st.success(f"Checklist session started: **{session_id}**")
         return session_id
 
     return None
-

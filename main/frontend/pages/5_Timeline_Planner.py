@@ -1,7 +1,7 @@
 import streamlit as st
-from components.timeline_form import show_timeline_form
 from components.result_display import display_timeline_planner_results
 from components.sidebar import render_sidebar
+from components.timeline_form import show_timeline_form
 
 # Ask for User ID in the sidebar
 user_id = render_sidebar()

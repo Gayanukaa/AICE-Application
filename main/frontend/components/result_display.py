@@ -1,28 +1,30 @@
 # frontend/components/result_display.py
 
+import json
 import time
+
 import pandas as pd
 import streamlit as st
 from streamlit_timeline import timeline
-import json
-
 from utils.api import (
+    get_checklist_result,
+    get_checklist_status,
+    get_cost_breakdown_result,
+    get_cost_breakdown_status,
     get_essay_result,
     get_essay_status,
     get_program_analysis_result,
     get_program_analysis_status,
-    get_cost_breakdown_result,
-    get_cost_breakdown_status,
-    get_timeline_status,
     get_timeline_result,
-    get_checklist_result,
-    get_checklist_status,
+    get_timeline_status,
 )
 
+
 def stream_paragraph(paragraph):
-        for word in paragraph.split():
-            yield word + " "
-            time.sleep(0.05)
+    for word in paragraph.split():
+        yield word + " "
+        time.sleep(0.05)
+
 
 def display_essay_results(session_id: str, timeout: int = 60, interval: float = 2.0):
     """Poll with a spinner, then render results for an essay-writing session."""
@@ -75,6 +77,7 @@ def display_essay_results(session_id: str, timeout: int = 60, interval: float = 
         st.write_stream(stream_paragraph(paragraph))
         st.markdown("")
 
+
 def display_program_analysis_results(
     session_id: str, timeout: int = 60, interval: float = 2.0
 ):
@@ -114,13 +117,12 @@ def display_program_analysis_results(
         st.error(f"⚠️ Invalid comparison report: {report}")
 
 
-
 def display_cost_breakdown_results(
     session_id: str, timeout: int = 60, interval: float = 2.0
 ):
     """Poll with a spinner, then nicely render program-analysis outputs."""
     st.subheader("📊 Cost Breakdown  Results")
-    
+
     if "breakdown" not in st.session_state:
         status = None
         start = time.time()
@@ -145,7 +147,6 @@ def display_cost_breakdown_results(
         st.session_state.breakdown = get_cost_breakdown_result(session_id)
     # --- Fetch results ---
 
-   
     breakdown = st.session_state.breakdown
     expenses = breakdown["expenses"]
     currency = breakdown["currency"]
@@ -175,7 +176,7 @@ def display_cost_breakdown_results(
             st.markdown("---")
             st.markdown(f"**{selected_fee}**")
             st.info(expenses[selected_fee]["description"])
-      
+
 
 def display_timeline_planner_results(
     session_id: str, timeout: int = 60, interval: float = 2.0
@@ -205,63 +206,74 @@ def display_timeline_planner_results(
 
     response = get_timeline_result(session_id)
 
-    #Deadlines
+    # Deadlines
     st.header("University Deadlines")
-    for uni in response['deadlines']:
-        st.subheader(uni['university'])
+    for uni in response["deadlines"]:
+        st.subheader(uni["university"])
 
-        interview_periods_raw = uni.get('interview_periods', [])
-        interview_periods = (
-            [f"{p['start']} to {p['end']}" for p in interview_periods_raw if p.get('start') and p.get('end')]
-            or ["No deadlines found"]
-        )
+        interview_periods_raw = uni.get("interview_periods", [])
+        interview_periods = [
+            f"{p['start']} to {p['end']}"
+            for p in interview_periods_raw
+            if p.get("start") and p.get("end")
+        ] or ["No deadlines found"]
 
         deadline_table = {
-            "Application Start": uni.get('application_start') or "No deadlines found",
-            "Application End": uni.get('application_end') or "No deadlines found",
-            "Essay Deadline": uni.get('essay_deadline') or "No deadlines found",
+            "Application Start": uni.get("application_start") or "No deadlines found",
+            "Application End": uni.get("application_end") or "No deadlines found",
+            "Essay Deadline": uni.get("essay_deadline") or "No deadlines found",
             "Interview Periods": interview_periods,
-            "Scholarship Deadlines": uni.get('scholarship_deadlines') or ["No deadlines found"],
+            "Scholarship Deadlines": uni.get("scholarship_deadlines")
+            or ["No deadlines found"],
         }
 
-        formatted_deadline_table = {k: v if isinstance(v, str) else ', '.join(v) for k, v in deadline_table.items()}
+        formatted_deadline_table = {
+            k: v if isinstance(v, str) else ", ".join(v)
+            for k, v in deadline_table.items()
+        }
 
-        df = pd.DataFrame(list(formatted_deadline_table.items()), columns=["Deadline Type", "Date(s)"])
+        df = pd.DataFrame(
+            list(formatted_deadline_table.items()), columns=["Deadline Type", "Date(s)"]
+        )
         st.table(df)
 
-    # Timeline 
+    # Timeline
     timeline_events = []
 
     # Process events
-    for event in response['timeline']['events']:
+    for event in response["timeline"]["events"]:
         try:
-            year, month, day = map(int, event['date'].split('-'))
-            timeline_events.append({
-                "start_date": {"year": year, "month": month, "day": day},
-                "text": {"text": event['task']},
-                "background": {"color": "#2E2E2E"},
-                "group": "Timeline"
-            })
+            year, month, day = map(int, event["date"].split("-"))
+            timeline_events.append(
+                {
+                    "start_date": {"year": year, "month": month, "day": day},
+                    "text": {"text": event["task"]},
+                    "background": {"color": "#2E2E2E"},
+                    "group": "Timeline",
+                }
+            )
         except (ValueError, AttributeError):
             st.warning(f"Invalid date format for event: {event}")
 
     # Process deadlines
-    for deadline in response['timeline']['deadlines']:
+    for deadline in response["timeline"]["deadlines"]:
         try:
-            year, month, day = map(int, deadline['date'].split('-'))
-            timeline_events.append({
-                "start_date": {"year": year, "month": month, "day": day},
-                "text": {"headline": deadline['name']},
-                "background": {"color": "#8A041E"},
-                "group": "Timeline"
-            })
+            year, month, day = map(int, deadline["date"].split("-"))
+            timeline_events.append(
+                {
+                    "start_date": {"year": year, "month": month, "day": day},
+                    "text": {"headline": deadline["name"]},
+                    "background": {"color": "#8A041E"},
+                    "group": "Timeline",
+                }
+            )
         except (ValueError, AttributeError):
             st.warning(f"Invalid date format for deadline: {deadline}")
 
     # Timeline visualization
     timeline_data = {
         "title": {"text": {"text": "Application Timeline"}},
-        "events": timeline_events
+        "events": timeline_events,
     }
 
     st.header("Timeline")
@@ -271,12 +283,14 @@ def display_timeline_planner_results(
     st.header("Suggestions")
     suggestion_lines = [
         f"- **{s['task']}** — _{s['recommended_date']}_"
-        for s in response['timeline']['suggestions']
+        for s in response["timeline"]["suggestions"]
     ]
     st.markdown("\n".join(suggestion_lines))
 
 
-def display_checklist_results(session_id: str, timeout: int = 60, interval: float = 2.0):
+def display_checklist_results(
+    session_id: str, timeout: int = 60, interval: float = 2.0
+):
     """Poll with a spinner, then render results for the dynamic application checklist."""
     st.subheader("📋 Application Checklist Results")
 

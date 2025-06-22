@@ -1,6 +1,5 @@
-from typing import Any, Dict, List, Optional
 import time
-
+from typing import Any, Dict, List, Optional
 
 from config.report_paths import (
     COST_BREAKDOWN_FILE,
@@ -64,13 +63,14 @@ class Checklist(BaseModel):
     university: str
     items: List[ChecklistItem]
 
+
 class ChecklistGroup(BaseModel):
     checklists: List[Checklist]
 
 
 class RawFees(BaseModel):
     """Output model for raw university fee retrieval."""
-    
+
     university: str
     course: str
     applicant_type: str
@@ -82,11 +82,14 @@ class ExpenseDetail(BaseModel):
     amount: int
     description: str
 
+
 class CostBreakdown(BaseModel):
     """Output model for detailed cost estimation."""
+
     currency: str
     expenses: Dict[str, ExpenseDetail]
     total_cost: int
+
 
 class InterviewPeriod(BaseModel):
     start: str  # ISO date
@@ -103,8 +106,10 @@ class Uni_DeadlineData(BaseModel):
     interview_periods: List[InterviewPeriod]
     scholarship_deadlines: List[str]
 
+
 class DeadlineData(BaseModel):
     """Top-level container for university deadline data."""
+
     deadlines: List[Uni_DeadlineData]
 
 
@@ -117,14 +122,16 @@ class SuggestedItem(BaseModel):
     task: str
     recommended_date: str
 
+
 class DeadlineEvent(BaseModel):
 
     date: str
     name: str
 
+
 class ApplicationTimeline(BaseModel):
     """Output model for suggested application timeline."""
-    
+
     deadlines: List[DeadlineEvent]
     events: List[TimelineEvent]
     suggestions: List[SuggestedItem]
@@ -294,7 +301,7 @@ def create_university_planning_tasks(
             - Program level: {level}
             - Universities: {universities}
             """,
-            expected_output = """
+            expected_output="""
             JSON object with a key 'checklists' (list), where each item contains:
             - university (str)
             - items (list of):
@@ -302,7 +309,7 @@ def create_university_planning_tasks(
             - required (bool)
             - notes (optional str)
             """,
-            agent = agents["dynamic_checklist_agent"],
+            agent=agents["dynamic_checklist_agent"],
             output_file=_path(DYNAMIC_CHECKLIST_FILE),
             output_json=ChecklistGroup,
         )
@@ -351,7 +358,7 @@ def create_university_planning_tasks(
             - Tuition and other fees: {{{{steps.fees.output}}}}
 
             Breakdown must include:
-            • Tuition fees  
+            • Tuition fees
             • Accommodation
             • Living expenses (food, utilities)
             • Visa and insurance
@@ -407,7 +414,7 @@ def create_university_planning_tasks(
                 - university: string
                 - application_start: date
                 - application_end: date
-                - essay_deadline: date 
+                - essay_deadline: date
                 - interview_periods: list of objects with:
                     - start: date
                     - end: date
@@ -415,7 +422,7 @@ def create_university_planning_tasks(
 
                 NOTE: If no data is available, return an empty string or list accordingly.
 
-            
+
             """,
             agent=agents["deadline_extractor_agent"],
             output_file=_path(DEADLINES_FILE),
@@ -440,7 +447,7 @@ def create_university_planning_tasks(
             • Applying for scholarships
 
             Note: Timeline must not include dates prior to {time.strftime("%Y-%m-%d")}.
-            
+
             Include each university’s key dates only in the deadlines:
             application start and end dates, essay submission deadline, interview periods, and scholarship application deadlines.
 
