@@ -79,7 +79,7 @@ def display_essay_results(session_id: str, timeout: int = 60, interval: float = 
 
 
 def display_program_analysis_results(
-    session_id: str, timeout: int = 60, interval: float = 2.0
+    session_id: str, timeout: int = 120, interval: float = 2.0
 ):
     """Poll with a spinner, then nicely render program-analysis outputs."""
     st.subheader("📊 Program Analysis Results")
@@ -87,8 +87,16 @@ def display_program_analysis_results(
     # --- Polling loop ---
     status = None
     start = time.time()
+    warned = False  # To track if the 1-minute message has been shown
+
     with st.spinner("Waiting for the program-analysis agents to finish…"):
         while time.time() - start < timeout:
+            elapsed = time.time() - start
+
+            if elapsed > 60 and not warned:
+                st.info("⏳ Still working... Extracting a large amount of content. Please wait a bit longer.")
+                warned = True
+
             resp = get_program_analysis_status(session_id)
             if resp["status"] in ("completed", "failed"):
                 status = resp
@@ -154,12 +162,12 @@ def display_cost_breakdown_results(
 
     # Construct table data
     table_data = [
-        {"Fee Name": name, f"Amount ({currency})": int(info["amount"])}
+        {"Fee Name": name, f"Amount ({currency})": round(int(info["amount"]) / 100) * 100}
         for name, info in expenses.items()
     ]
     # Append total cost row
     table_data.append(
-        {"Fee Name": "Estimated Total", f"Amount ({currency})": total_cost}
+        {"Fee Name": "Estimated Total", f"Amount ({currency})": round(int(total_cost) / 100) * 100}
     )
 
     # Layout

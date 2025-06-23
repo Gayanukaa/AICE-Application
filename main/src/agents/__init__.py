@@ -7,6 +7,7 @@ from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from tools import (
     SearchTool,
     fetch_university_admission_info,
+    UniversitySearchTool,
     fetch_university_fees,
     read_comparison_instructions,
 )
@@ -116,7 +117,8 @@ def create_college_exploration_agents(
         ),
         allow_delegation=False,
         llm=get_llm(uni_info_scraper_model, uni_info_scraper_temperature),
-        tools=[fetch_university_admission_info],
+        tools=[UniversitySearchTool()],
+        
     )
 
     uni_info_processor_agent = Agent(

@@ -364,8 +364,7 @@ def create_university_planning_tasks(
             • Visa and insurance
             • Travel expenses
             • Other fees(if present)
-
-
+ 
             Estimate each item based on location,applicant type and preferences where applicable.
             Include the used currency for the breakdown.
             """,
