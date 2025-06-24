@@ -245,6 +245,14 @@ def display_timeline_planner_results(
         )
         st.table(df)
 
+    if not response["timeline"]["deadlines"] and not response["timeline"]["events"] and not response["timeline"]["suggestions"]:
+        st.warning(
+            "🚫 Relevant deadlines for the selected intake have already passed. "
+            "A personalized timeline could not be created. "
+            "Try selecting a future intake period."
+        )
+        return
+    
     # Timeline
     timeline_events = []
 

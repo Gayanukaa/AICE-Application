@@ -405,22 +405,22 @@ def create_university_planning_tasks(
             • Interview periods (with start and end)
             • Scholarship application deadlines
 
+             
 
             """,
-            expected_output="""
-            A JSON object:
-            - deadlines: a list of objects, each containing:
-                - university: string
-                - application_start: date
-                - application_end: date
-                - essay_deadline: date
-                - interview_periods: list of objects with:
-                    - start: date
-                    - end: date
-                - scholarship_deadlines: list of dates
+            expected_output=f"""
+                A JSON object:
+                - deadlines: a list of objects, each containing:
+                    - university: string
+                    - application_start: date
+                    - application_end: date
+                    - essay_deadline: date
+                    - interview_periods: list of objects with:
+                        - start: date
+                        - end: date
+                    - scholarship_deadlines: list of dates
 
                 NOTE: If no data is available, return an empty string or list accordingly.
-
 
             """,
             agent=agents["deadline_extractor_agent"],
@@ -445,16 +445,19 @@ def create_university_planning_tasks(
             • Preparing for interviews
             • Applying for scholarships
 
-            Note: Timeline must not include dates prior to {time.strftime("%Y-%m-%d")}.
+            IMPORTANT: 
+            - Timeline must not include dates prior to {time.strftime("%Y-%m-%d")}.
+
+            Note: If all extracted deadlines are earlier than today ({time.strftime("%Y-%m-%d")}),
+                  return empty lists for deadlines, events, and suggestions.
 
             Include each university’s key dates only in the deadlines:
             application start and end dates, essay submission deadline, interview periods, and scholarship application deadlines.
 
-
             """,
             expected_output="""
             A JSON timeline:
-            - deadlines: list of { date, name: string}
+            - deadlines: list of { date: date, name: string}
             - events: list of { date: date, task: string}
             - suggestions: list of { task: string, recommended_date: date }
             """,
