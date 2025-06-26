@@ -364,7 +364,7 @@ def create_university_planning_tasks(
             • Visa and insurance
             • Travel expenses
             • Other fees(if present)
- 
+
             Estimate each item based on location,applicant type and preferences where applicable.
             Include the used currency for the breakdown.
             """,
@@ -405,7 +405,7 @@ def create_university_planning_tasks(
             • Interview periods (with start and end)
             • Scholarship application deadlines
 
-             
+
 
             """,
             expected_output=f"""
@@ -445,7 +445,7 @@ def create_university_planning_tasks(
             • Preparing for interviews
             • Applying for scholarships
 
-            IMPORTANT: 
+            IMPORTANT:
             - Timeline must not include dates prior to {time.strftime("%Y-%m-%d")}.
 
             Note: If all extracted deadlines are earlier than today ({time.strftime("%Y-%m-%d")}),

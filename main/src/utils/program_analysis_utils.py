@@ -44,7 +44,7 @@ def construct_search_query(university: str, criterion: str) -> str:
     University: "{university}"
     Topic: "{criterion}"
 
-    Use only course and degree names that are officially offered by this university. 
+    Use only course and degree names that are officially offered by this university.
     Do not guess or assume common names — include only terms that this university actually uses on its official website.
 
     Do NOT include:

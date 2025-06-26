@@ -1,5 +1,6 @@
-import os
 import ast
+import os
+
 import httpx
 import nltk
 from crewai import LLM
@@ -50,7 +51,7 @@ def sentiment_reddit_summary(reviews: list[str]) -> dict:
 
     Review:
     \"\"\"{user_review}\"\"\"
-    
+
     Return only the search query. Do not include any extra text or punctuation.
     """
     refined_query = llm.invoke([HumanMessage(content=query_prompt)]).content.strip()
@@ -72,11 +73,11 @@ def sentiment_reddit_summary(reviews: list[str]) -> dict:
 
     children = resp.json().get("data", {}).get("children", [])
     raw_posts = [
-    {
-        "title": item.get("data", {}).get("title", "")[:200],
-        "url": f"https://reddit.com{item.get('data', {}).get('permalink', '')}"
-    }
-    for item in children
+        {
+            "title": item.get("data", {}).get("title", "")[:200],
+            "url": f"https://reddit.com{item.get('data', {}).get('permalink', '')}",
+        }
+        for item in children
     ]
 
     # Ask LLM to pick top 5 most relevant posts
@@ -97,14 +98,20 @@ def sentiment_reddit_summary(reviews: list[str]) -> dict:
     Reddit posts:
     {chr(10).join(f"- {p['title']}" for p in raw_posts)}
     """
-    top_titles_response = llm.invoke([HumanMessage(content=ranking_prompt)]).content.strip()
+    top_titles_response = llm.invoke(
+        [HumanMessage(content=ranking_prompt)]
+    ).content.strip()
     try:
         top_titles = ast.literal_eval(top_titles_response)
-        
-        if not isinstance(top_titles, list) or not all(isinstance(t, str) for t in top_titles):
+
+        if not isinstance(top_titles, list) or not all(
+            isinstance(t, str) for t in top_titles
+        ):
             raise ValueError("Invalid format")
     except Exception:
-        raise HTTPException(status_code=500, detail="Failed to parse LLM response for selected titles")
+        raise HTTPException(
+            status_code=500, detail="Failed to parse LLM response for selected titles"
+        )
 
     # Match titles to original posts (exact match required)
     posts = [p for p in raw_posts if p["title"] in top_titles][:5]
@@ -112,7 +119,6 @@ def sentiment_reddit_summary(reviews: list[str]) -> dict:
     # Format list for sentiment analysis
     reddit_list = "\n".join(f"- {p['title']} ({p['url']})" for p in posts)
 
-    
     sentiment_prompt = f"""
     You are an AI assistant. A student wrote this review:
     \"\"\"{user_review}\"\"\"

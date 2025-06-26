@@ -1,14 +1,14 @@
 import os
 import re
+from typing import Dict, List
 
-from typing import List, Dict
 from crewai.tools import BaseTool, tool
 from crewai_tools import FileReadTool, ScrapeWebsiteTool, SerperDevTool
 from dotenv import load_dotenv
 from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_openai import AzureChatOpenAI
 from pydantic import Field
-from utils.program_analysis_utils import extract_essential_info, construct_search_query
+from utils.program_analysis_utils import construct_search_query, extract_essential_info
 
 load_dotenv()
 
@@ -41,10 +41,22 @@ class UniversitySearchTool(BaseTool):
         "Searches for information about a university based on multiple criteria. "
         "For curriculum or course structure-related queries, it scrapes the university's website."
     )
-    search: GoogleSerperAPIWrapper = Field(default_factory=lambda: GoogleSerperAPIWrapper(serper_api_key=os.getenv("SERPER_API_KEY")))
+    search: GoogleSerperAPIWrapper = Field(
+        default_factory=lambda: GoogleSerperAPIWrapper(
+            serper_api_key=os.getenv("SERPER_API_KEY")
+        )
+    )
 
     def _is_course_related(self, criterion: str) -> bool:
-        keywords = ['course', 'curriculum', 'syllabus', 'subjects', 'modules', 'program', 'structure']
+        keywords = [
+            "course",
+            "curriculum",
+            "syllabus",
+            "subjects",
+            "modules",
+            "program",
+            "structure",
+        ]
         return any(keyword in criterion.lower() for keyword in keywords)
 
     def _scrape_site(self, url: str) -> str:
@@ -273,4 +285,3 @@ def fetch_university_deadlines(university: str, origin: str, level: str) -> dict
 
     except Exception as e:
         return {"error": str(e)}
-

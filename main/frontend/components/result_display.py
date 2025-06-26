@@ -95,7 +95,9 @@ def display_program_analysis_results(
             elapsed = time.time() - start
 
             if elapsed > 60 and not warned:
-                info_box.info("⏳ Still working... Extracting a large amount of content. Please wait a bit longer.")
+                info_box.info(
+                    "⏳ Still working... Extracting a large amount of content. Please wait a bit longer."
+                )
                 warned = True
 
             resp = get_program_analysis_status(session_id)
@@ -166,12 +168,18 @@ def display_cost_breakdown_results(
 
     # Construct table data
     table_data = [
-        {"Fee Name": name, f"Amount ({currency})": round(int(info["amount"]) / 100) * 100}
+        {
+            "Fee Name": name,
+            f"Amount ({currency})": round(int(info["amount"]) / 100) * 100,
+        }
         for name, info in expenses.items()
     ]
     # Append total cost row
     table_data.append(
-        {"Fee Name": "Estimated Total", f"Amount ({currency})": round(int(total_cost) / 100) * 100}
+        {
+            "Fee Name": "Estimated Total",
+            f"Amount ({currency})": round(int(total_cost) / 100) * 100,
+        }
     )
 
     # Layout
@@ -249,14 +257,18 @@ def display_timeline_planner_results(
         )
         st.table(df)
 
-    if not response["timeline"]["deadlines"] and not response["timeline"]["events"] and not response["timeline"]["suggestions"]:
+    if (
+        not response["timeline"]["deadlines"]
+        and not response["timeline"]["events"]
+        and not response["timeline"]["suggestions"]
+    ):
         st.warning(
             "🚫 Relevant deadlines for the selected intake have already passed. "
             "A personalized timeline could not be created. "
             "Try selecting a future intake period."
         )
         return
-    
+
     # Timeline
     timeline_events = []
 
