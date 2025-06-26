@@ -1,12 +1,14 @@
 import os
 import re
 
+from typing import List, Dict
 from crewai.tools import BaseTool, tool
 from crewai_tools import FileReadTool, ScrapeWebsiteTool, SerperDevTool
 from dotenv import load_dotenv
 from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_openai import AzureChatOpenAI
 from pydantic import Field
+from utils.program_analysis_utils import extract_essential_info, construct_search_query
 
 load_dotenv()
 
@@ -31,6 +33,62 @@ class SearchTool(BaseTool):
 
 file_read_tool = FileReadTool()
 search_uni = SerperDevTool()
+
+
+class UniversitySearchTool(BaseTool):
+    name: str = "UniversitySearch"
+    description: str = (
+        "Searches for information about a university based on multiple criteria. "
+        "For curriculum or course structure-related queries, it scrapes the university's website."
+    )
+    search: GoogleSerperAPIWrapper = Field(default_factory=lambda: GoogleSerperAPIWrapper(serper_api_key=os.getenv("SERPER_API_KEY")))
+
+    def _is_course_related(self, criterion: str) -> bool:
+        keywords = ['course', 'curriculum', 'syllabus', 'subjects', 'modules', 'program', 'structure']
+        return any(keyword in criterion.lower() for keyword in keywords)
+
+    def _scrape_site(self, url: str) -> str:
+        try:
+            return ScrapeWebsiteTool(website_url=url).run()
+        except Exception as e:
+            return f"Error scraping website: {str(e)}"
+
+    def _search_url(self, query: str) -> str:
+        # Extract the top URL from a search query
+        try:
+            url = extract_main_links(search_uni.run(search_query=query))[0]
+            return url
+        except Exception:
+            return ""
+
+    def _run(self, university: str, criteria: List[str]) -> Dict[str, str]:
+        """
+        Searches for information about a university based on given criteria.
+
+        If a criterion is course-related, it scrapes data from a relevant URL.
+        Otherwise, it performs a normal search.
+
+        Returns a dictionary with each criterion and its result.
+        """
+
+        result = {}
+        for criterion in criteria:
+            query = construct_search_query(university, criterion)
+            if self._is_course_related(criterion):
+                url = self._search_url(query)
+                if url:
+                    content = self._scrape_site(url)
+                    result[criterion] = extract_essential_info(content, query)
+                else:
+                    result[criterion] = "No relevant URL found for scraping."
+
+            else:
+                try:
+                    content = self.search.run(query)
+                    result[criterion] = content
+                except Exception as e:
+                    result[criterion] = f"Error performing search: {str(e)}"
+        return result
 
 
 def extract_main_links(data):
@@ -216,42 +274,3 @@ def fetch_university_deadlines(university: str, origin: str, level: str) -> dict
     except Exception as e:
         return {"error": str(e)}
 
-
-# @tool("extract_relavant_content")
-# def extract_relevant_content(field: str, text: str) -> dict:
-#     """
-#     Extract content relavant to the the specific field.
-#     Only the following fields can be used:
-#     "requirements", "deadlines", "fees", "scholarships", "university ranking", "subject ranking".
-
-#     IMPORTANT: DO NOT USE THIS FUNCTION for field: {subject} course structure/curiculum
-#     Args:
-#         field (str): The keyword to look for (must be one of the allowed fields).
-#         text (str): The text to search through.
-
-#     Returns:
-#         str: Combined snippets of matched sentences with context.
-
-#     """
-
-#     window_size = 4
-
-#     sentences = re.split(r'(?<=[.!?])\s+', text)
-#     field_lower = field.lower()
-#     indexes = [i for i, sentence in enumerate(sentences) if field_lower in sentence.lower()]
-#     if not indexes:
-#         return ""
-#     snippets = []
-#     for idx in indexes:
-#         start = max(0, idx - window_size)
-#         end = min(len(sentences), idx + window_size + 1)
-#         snippet = ' '.join(sentences[start:end]).strip()
-#         snippets.append(snippet)
-
-#     return {field: '\n\n'.join(snippets)}
-
-# def get_content(keyword: str, text: str):
-#     match = re.search(re.escape(keyword), text, re.IGNORECASE)
-#     if match:
-#         return text[match.start():]
-#     return "Relevant keyword not found in the full page content."

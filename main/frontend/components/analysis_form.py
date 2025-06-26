@@ -15,7 +15,8 @@ def show_analysis_form(user_id: str):
     )
     criteria_input = st.text_input(
         "Comparison Criteria (comma-separated)",
-        help="E.g., cost, ranking, curriculum, scholarships.",
+        placeholder="Use university specific terms to get better results",
+        help="E.g., tuition fees, QS ranking, Bachelor of Computer Science structure.",
     )
 
     if st.button("Start Program Analysis"):

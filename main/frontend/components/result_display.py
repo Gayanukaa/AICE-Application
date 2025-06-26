@@ -88,13 +88,14 @@ def display_program_analysis_results(
     status = None
     start = time.time()
     warned = False  # To track if the 1-minute message has been shown
+    info_box = st.empty()  # Placeholder for conditional info message
 
     with st.spinner("Waiting for the program-analysis agents to finish…"):
         while time.time() - start < timeout:
             elapsed = time.time() - start
 
             if elapsed > 60 and not warned:
-                st.info("⏳ Still working... Extracting a large amount of content. Please wait a bit longer.")
+                info_box.info("⏳ Still working... Extracting a large amount of content. Please wait a bit longer.")
                 warned = True
 
             resp = get_program_analysis_status(session_id)
@@ -102,6 +103,9 @@ def display_program_analysis_results(
                 status = resp
                 break
             time.sleep(interval)
+
+    # Clear the info message if shown
+    info_box.empty()
 
     if status is None:
         st.error("⏱️ Timed out waiting for results. Try refreshing.")
@@ -117,7 +121,7 @@ def display_program_analysis_results(
     res = get_program_analysis_result(session_id)
 
     report = res.get("program_comparison_report", {})
-    if isinstance(report, dict):
+    if isinstance(report, dict) and "comparison_report" in report:
         lines = report["comparison_report"].strip().splitlines()
         markdown_content = "\n".join(lines[1:])
         st.markdown(markdown_content)
