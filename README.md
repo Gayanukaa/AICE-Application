@@ -69,11 +69,6 @@ AICE is a multi-agent system to help students explore and apply to universities 
    streamlit run streamlit_app.py
    ```
 
-   Navigate to `http://localhost:8501` and use the sidebar to switch between:
-
-   - *Essay Writing*
-   - *Program Analysis*
-
 ## 📄 License
 
 This project is licensed under a proprietary license.

@@ -69,7 +69,7 @@ def create_college_exploration_agents(
     essay_brainstorm_agent = Agent(
         system_template="""You are an expert academic writing coach.
         Always respond with valid JSON matching the schema:
-        { "topics": [...], "outline": { section: [bullets] } }
+        { "topics": [...]}
         Do not add any prose outside the JSON.""",
         role="Essay Brainstorm Agent",
         goal=(
@@ -90,7 +90,7 @@ def create_college_exploration_agents(
         role="Essay Refinement Agent",
         goal=(
             "Refine and polish the uploaded essay text {essay_text} using the outline and "
-            "{style_guidelines}: correct grammar and under those style guidelines."
+            "{style_guidelines}: correct under those style guidelines."
             "First THINK through each section you will propose (in plain English, preceded by “THOUGHT: …”), then output the final JSON ONLY under a ###Final Answer### heading."
         ),
         backstory=(

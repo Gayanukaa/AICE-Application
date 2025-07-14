@@ -171,7 +171,6 @@ def create_college_exploration_tasks(
             expected_output="""
             A JSON object with:
             - topics: list of section headings or key themes.
-            - outline: mapping of each section to bullet-point details.
             """,
             agent=agents["essay_brainstorm_agent"],
             output_file=_path(ESSAY_OUTLINE_FILE),
@@ -196,8 +195,7 @@ def create_college_exploration_tasks(
 
             Apply:
 
-            1. Alignment with university-specific expectations using {style_guidelines}.
-            2. Grammar, spelling, and punctuation correction.
+            Alignment with university-specific expectations using {style_guidelines}.
             """,
             expected_output="""
             A JSON object with:
