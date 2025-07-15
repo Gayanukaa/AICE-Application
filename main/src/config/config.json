@@ -45,6 +45,6 @@
   },
   "interview_question_generator_agent": {
     "model": "gpt-4o",
-    "temperature": 0.0
+    "temperature": 0.5
   }
 }
