@@ -13,6 +13,7 @@ from crew import (
     create_essay_writing_crew,
     create_program_analysis_crew,
     create_timeline_generator_crew,
+    create_interview_prep_crew
 )
 
 
@@ -227,6 +228,28 @@ def generate_application_planning_background(
             db.save_timeline(session_id, deadlines, timeline)
             logger.info("Timeline data saved to DB")
 
+        elif flow == "interview_prep":
+            logger.info("Flow type is 'interview_prep'")
+            sess = db.get_interview_prep_session(session_id)
+            sess["status"] = "in_progress"
+            all_db = db.read_db()
+            all_db["interview_prep_sessions"][session_id] = sess
+            db.update_db(all_db)
+
+            result, tasks = create_interview_prep_crew(
+                session_id=session_id,
+                university_name=session_data["university_name"],
+                course_name=session_data["course_name"],
+                program_level=session_data["program_level"],
+            )
+            interview_QA = None
+            for task in tasks:
+                if task.agent.role == "Interview Preparation Generator":
+                    raw = task.output.raw
+                    interview_QA = json.loads(raw) if _is_json(raw) else raw
+            db.save_interview_prep(session_id, interview_QA)
+            logger.info("Interview preparation data saved to DB")
+            
         else:
             raise ValueError(f"Unknown flow_type: {flow}")
 
@@ -244,6 +267,9 @@ def generate_application_planning_background(
         elif flow == "timeline":
             sess = db.get_timeline_session(session_id)
             key = "timeline_sessions"
+        elif flow == "interview_prep":
+            sess = db.get_interview_prep_session(session_id)
+            key = "interview_prep_sessions"
         else:
             raise
 

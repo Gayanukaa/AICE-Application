@@ -12,6 +12,8 @@ from config.report_paths import (
     REFINED_ESSAY_FILE,
     STRUCTURED_ADMISSIONS_DATA_FILE,
     TIMELINE_FILE,
+    INTERVIEW_RESEARCH_FILE,
+    INTERVIEW_QA_FILE,
 )
 from crewai import Agent, Task
 from pydantic import BaseModel
@@ -136,6 +138,17 @@ class ApplicationTimeline(BaseModel):
     events: List[TimelineEvent]
     suggestions: List[SuggestedItem]
 
+class InterviewResearch(BaseModel):
+    """Output model for interview research summary."""
+    research_summary: str
+
+class QAItem(BaseModel):
+    question: str
+    response_guideline: str
+
+class InterviewQA(BaseModel):
+    """Output model for interview questions + response guidelines."""
+    questions: List[QAItem]
 
 def create_college_exploration_tasks(
     session_id: str,
@@ -466,5 +479,63 @@ def create_university_planning_tasks(
         )
         tasks.append(t5)
         ctx["timeline"] = t5
+
+    
+    # --- Feature 7: Interview Preparation ---
+
+    # Task 6: Research university interview expectations
+    if "interview_research_agent" in agents:
+        t6 = Task(
+            description=f"""
+            Research typical university interview expectations and styles for:
+            - University: {university}
+            - Course: {course}
+            - Program level: {level}
+
+            Focus on finding:
+            • Common themes discussed in interviews
+            • Specific competencies or qualities the university values
+            • Historical or published examples of interview formats or questions
+            """,
+            expected_output="""
+            A JSON object:
+            - research_summary: string (A concise but informative summary of key findings)
+            """,
+            agent=agents["interview_research_agent"],
+            output_file=_path(INTERVIEW_RESEARCH_FILE),
+            output_json=InterviewResearch,
+        )
+        tasks.append(t6)
+        ctx["interview_research"] = t6
+
+     # Task 7: Generate realistic interview questions + guidelines
+    if "interview_question_generator_agent" in agents and "interview_research" in ctx:
+        t7 = Task(
+            description=f"""
+            Using the researched insights: {{{{steps.interview_research.output}}}}
+            along with the following details:
+            - University: {university}
+            - Course: {course}
+            - Program level: {level}
+
+            Generate realistic interview questions that admissions officers might ask,
+            tailored to this university and course. For each question, also provide
+            a clear response guideline that explains what the interviewer is looking for
+            and how to effectively approach answering it.
+            """,
+            expected_output="""
+            A JSON object:
+            - questions: list of objects, each containing:
+                - question: string
+                - response_guideline: string
+            """,
+            agent=agents["interview_question_generator_agent"],
+            output_file=_path(INTERVIEW_QA_FILE),
+            output_json=InterviewQA,
+            context=[ctx["interview_research"]],
+        )
+        tasks.append(t7)
+        ctx["interview_prep"] = t7
+    
 
     return tasks

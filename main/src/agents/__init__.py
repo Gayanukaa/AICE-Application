@@ -198,6 +198,21 @@ def create_university_planning_agents(
         config, "deadline_extractor_agent", "temperature"
     )
 
+    interview_research_model = get_config_value(
+        config, "interview_research_agent", "model"
+    )
+    interview_research_temperature = get_config_value(
+        config, "interview_research_agent", "temperature"
+    )
+
+    interview_prep_model = get_config_value(
+        config, "interview_question_generator_agent", "model"
+    )
+    interview_prep_temperature = get_config_value(
+        config, "interview_question_generator_agent", "temperature"
+    )
+
+
     def get_llm(model_name: str, temperature: float) -> Union[LLM, ChatOpenAI]:
         if os.getenv("USE_AZURE_OPENAI") == "true":
             return LLM(
@@ -308,10 +323,51 @@ def create_university_planning_agents(
         tools=[SearchTool()],
     )
 
+     # 3a. Interview Research Agent
+    interview_research_agent = Agent(
+        role="Interview Research Agent",
+        goal=(
+            "Research the typical style, expectations, and themes of university interviews "
+            "for the specified course and program level."
+        ),
+        backstory=(
+            "You are a university interview analyst who gathers insights into what admissions panels "
+            "look for, based on program details and past interviews."
+        ),
+        allow_delegation=False,
+        llm=get_llm(interview_research_model, interview_research_temperature),
+        tools=[SearchTool()],
+    )
+
+    """
+    university_name
+    course_name
+    program_level
+    Research from interview_research_agent
+    """
+    # 3b. Interview Preparation Generator Agent
+    interview_question_generator_agent = Agent(
+        role="Interview Preparation Generator",
+        goal=(
+            "Create realistic university interview questions for the given course and program level, "
+            "and provide clear suggestions on how to answer them."
+        ),
+        backstory=(
+            "You are an admissions expert who designs realistic university interview questions "
+            "and offers clear suggestions on how applicants should answer them."
+        ),
+        allow_delegation=False,
+        llm=get_llm(interview_prep_model, interview_prep_temperature),
+    )
+
     return {
         "dynamic_checklist_agent": dynamic_checklist_agent,
         "fee_retriever_agent": fee_retriever_agent,
         "cost_breakdown_generator_agent": cost_breakdown_generator_agent,
         "deadline_extractor_agent": deadline_extractor_agent,
         "timeline_generator_agent": timeline_generator_agent,
+        "interview_research_agent": interview_research_agent,
+        "interview_question_generator_agent": interview_question_generator_agent,
     }
+
+    

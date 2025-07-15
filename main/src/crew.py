@@ -268,3 +268,57 @@ def create_timeline_generator_crew(
     )
     result = crew.kickoff()
     return result, tasks
+
+
+def create_interview_prep_crew(
+    session_id: str,
+    university_name: str,
+    course_name: str,
+    program_level: str,
+) -> Tuple:
+    """
+    Create and run a Crew for the Interview Preparation flow.
+
+    This will invoke:
+      1. interview_research_agent
+      2. interview_question_generator_agent
+    """
+    # prepare log directory
+    log_dir = f"data/logs/{session_id}/interview_prep"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "crew.log")
+
+    # instantiate all planning agents, then pick only the interview prep ones
+    agents = create_university_planning_agents(session_id)
+    selected_agents = {
+        name: agents[name]
+        for name in ("interview_research_agent", "interview_question_generator_agent")
+        if name in agents
+    }
+
+    tasks = create_university_planning_tasks(
+        session_id=session_id,
+        universities=[university_name],
+        university=university_name,
+        course=course_name,
+        level=program_level,
+        applicant_type="",
+        nationality="",
+        intake="",
+        applicant_availability=None,
+        location="",
+        preferences="",
+        agents=selected_agents,
+    )
+
+    crew = Crew(
+        agents=list(selected_agents.values()),
+        tasks=tasks,
+        verbose=True,
+        Process=Process.sequential,
+        output_log_file=log_file,
+        full_output=True,
+    )
+
+    result = crew.kickoff()
+    return result, tasks

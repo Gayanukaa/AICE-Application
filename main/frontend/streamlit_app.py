@@ -47,6 +47,12 @@ def main():
                 title="Checklist Generator",
                 icon="📋",
             ),
+            st.Page(
+                "pages/7_Interview_prep.py",
+                title="Interview prep",
+                icon="📝",
+            ),
+            
         ]
     )
     pg.run()

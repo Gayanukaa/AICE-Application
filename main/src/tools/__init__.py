@@ -19,7 +19,7 @@ search = GoogleSerperAPIWrapper(serper_api_key=os.getenv("SERPER_API_KEY"))
 class SearchTool(BaseTool):
     name: str = "Search"
     description: str = (
-        "Useful for search-based queries. Use this to find current information about markets, companies, and trends."
+        "Useful for search-based queries. Use this to find current information universities"
     )
     search: GoogleSerperAPIWrapper = Field(default_factory=GoogleSerperAPIWrapper)
 

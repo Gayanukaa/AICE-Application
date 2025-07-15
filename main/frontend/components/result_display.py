@@ -17,6 +17,8 @@ from utils.api import (
     get_program_analysis_status,
     get_timeline_result,
     get_timeline_status,
+    get_interview_prep_status,
+    get_interview_prep_result,
 )
 
 
@@ -367,3 +369,71 @@ def display_checklist_results(
                 if notes:
                     st.info(notes)
         st.markdown("---")
+
+
+def display_interview_prep_results(
+    session_id: str, timeout: int = 60, interval: float = 2.0
+):
+    """Poll with a spinner, then render results for the interview prep Q&A."""
+    st.subheader(" Interview Q&A Results")
+
+    status = None
+    start = time.time()
+    with st.spinner("Waiting for the interview prep agents to finish…"):
+        while time.time() - start < timeout:
+            resp = get_interview_prep_status(session_id)
+            if resp["status"] in ("completed", "failed"):
+                status = resp
+                break
+            time.sleep(interval)
+
+    if status is None:
+        st.error("⏱️ Timed out waiting for results. Try refreshing.")
+        return
+
+    st.write(f"**Status:** {status['status'].capitalize()}")
+
+    if status["status"] == "failed":
+        st.error(f"⚠️ Error: {status.get('error', 'Unknown error')}")
+        return
+
+    # Completed: fetch results
+    response = get_interview_prep_result(session_id)
+    questions = response.get("questions", [])
+
+    if not questions:
+        st.info("No interview questions were generated.")
+        return
+
+    st.success(f"✅ Generated {len(questions)} interview questions with response guidelines.")
+
+    # Display each question outside the box, guideline inside
+    for idx, item in enumerate(questions, start=1):
+        st.markdown(f"""
+            <div style="
+                margin-top: 2rem;
+                font-size: 1.1rem;
+                font-weight: 600;
+            ">
+                Q{idx}: {item['question']}
+            </div>
+        """, unsafe_allow_html=True)
+
+        with st.container():
+            st.markdown(f"""
+                <div style="
+                    background-color: rgba(70,130,180,0.2);
+                    border-radius: 12px;
+                    padding: 1.2rem;
+                    line-height: 1.6;
+                    margin-top: 0.5rem;
+                    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+                ">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">
+                        Response Guideline:
+                    </div>
+                    <div style="color: #e0f7fa;">
+                        {item['response_guideline']}
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)

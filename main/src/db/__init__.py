@@ -25,6 +25,8 @@ def read_db() -> Dict[str, Any]:
         "cost_breakdown_results": {},
         "timeline_sessions": {},
         "timeline_results": {},
+        "interview_prep_sessions": {},
+        "interview_prep_results":{},
     }
 
     if not os.path.exists(DB_FILENAME):
@@ -422,4 +424,60 @@ def delete_timeline_session(session_id: str) -> None:
     db = read_db()
     db["timeline_sessions"].pop(session_id, None)
     db["timeline_results"].pop(session_id, None)
+    update_db(db)
+
+
+def create_interview_prep_session(
+    user_id: str,
+    university_name: str,
+    course_name: str,
+    program_level: str,
+) -> str:
+    db = read_db()
+    session_id = str(uuid.uuid4())
+
+    db["interview_prep_sessions"][session_id] = {
+        "user_id": user_id,
+        "university_name": university_name,
+        "course_name": course_name,
+        "program_level": program_level,
+        "created_at": datetime.datetime.utcnow().isoformat(),
+        "status": "pending",
+    }
+
+    update_db(db)
+    return session_id
+
+
+def get_interview_prep_session(session_id: str) -> Dict[str, Any]:
+    db = read_db()
+    if session_id not in db.get("interview_prep_sessions", {}):
+        raise KeyError(f"Interview prep session {session_id} not found")
+    return db["interview_prep_sessions"][session_id]
+
+
+def save_interview_prep(session_id: str, Interview_QA: Dict[str, Any]) -> None:
+    db = read_db()
+    if session_id not in db.get("interview_prep_sessions", {}):
+        raise KeyError(f"Interview prep session {session_id} not found")
+
+    db["interview_prep_results"][session_id] = {
+        "Interview_QA": Interview_QA,
+        "completed_at": datetime.datetime.utcnow().isoformat(),
+    }
+    db["interview_prep_sessions"][session_id]["status"] = "completed"
+    update_db(db)
+
+
+def get_interview_prep(session_id: str) -> Dict[str, Any]:
+    db = read_db()
+    if session_id not in db.get("interview_prep_results", {}):
+        raise KeyError(f"No interview prep data for session {session_id}")
+    return db["interview_prep_results"][session_id].get("Interview_QA")
+
+
+def delete_interview_prep_session(session_id: str) -> None:
+    db = read_db()
+    db.get("interview_prep_sessions", {}).pop(session_id, None)
+    db.get("interview_prep_results", {}).pop(session_id, None)
     update_db(db)

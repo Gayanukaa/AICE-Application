@@ -396,3 +396,66 @@ async def sentiment_analysis(payload: SentimentRequest):
         }
     """
     return sentiment_reddit_summary(payload.reviews)
+
+
+# --- Interview preperation (Feature 7) ------------------------------------------
+
+@app.post("/sessions/interview-prep")
+def start_interview_prep(payload: Dict[str, Any], background_tasks: BackgroundTasks):
+    """
+    Start an Interview Preparation session.
+    Expects JSON with:
+      - user_id: str
+      - university_name: str
+      - course_name: str
+      - program_level: str
+    Returns:
+      - session_id: str
+    """
+    user_id = payload.get("user_id")
+    university_name = payload.get("university_name")
+    course_name = payload.get("course_name")
+    program_level = payload.get("program_level")
+
+    if not all(isinstance(field, str) for field in [user_id, university_name, course_name, program_level]):
+        raise HTTPException(status_code=400, detail="Missing or invalid required fields")
+
+    session_id = db.create_interview_prep_session(
+        user_id, university_name, course_name, program_level
+    )
+
+    background_tasks.add_task(
+        generate_application_planning_background,
+        session_id,
+        {
+            "flow_type": "interview_prep",
+            "university_name": university_name,
+            "course_name": course_name,
+            "program_level": program_level,
+        },
+    )
+
+    return {"session_id": session_id}
+
+
+@app.get("/sessions/interview-prep/{session_id}/status")
+def get_interview_prep_status(session_id: str):
+    """
+    Get the current status of an Interview Preparation session.
+    Returns:
+      - session_id: str
+      - status: str
+    """
+    sess = db.get_interview_prep_session(session_id)
+    return {"session_id": session_id, "status": sess["status"]}
+
+
+@app.get("/sessions/interview-prep/{session_id}/result")
+def get_interview_prep_result(session_id: str):
+    """
+    Fetch prepared interview questions and response guidelines.
+    Returns:
+      - questions: list of dicts with {"question": ..., "response_guideline": ...}
+    """
+    result = db.get_interview_prep(session_id)
+    return result

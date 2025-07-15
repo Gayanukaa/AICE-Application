@@ -237,3 +237,44 @@ def get_checklist_result(session_id: str) -> dict:
     resp = httpx.get(f"{API_BASE_URL}/sessions/checklist/{session_id}/result")
     resp.raise_for_status()
     return resp.json()
+
+
+def create_interview_prep_session(
+    user_id: str,
+    university_name: str,
+    course_name: str,
+    program_level: str,
+) -> str:
+    """
+    POST /sessions/interview-prep
+    Returns the new session_id.
+    """
+    payload = {
+        "user_id": user_id,
+        "university_name": university_name,
+        "course_name": course_name,
+        "program_level": program_level,
+    }
+    resp = httpx.post(f"{API_BASE_URL}/sessions/interview-prep", json=payload)
+    resp.raise_for_status()
+    return resp.json()["session_id"]
+
+
+def get_interview_prep_status(session_id: str) -> dict:
+    """
+    GET /sessions/interview-prep/{session_id}/status
+    Returns {"session_id": ..., "status": ...}.
+    """
+    resp = httpx.get(f"{API_BASE_URL}/sessions/interview-prep/{session_id}/status")
+    resp.raise_for_status()
+    return resp.json()
+
+
+def get_interview_prep_result(session_id: str) -> dict:
+    """
+    GET /sessions/interview-prep/{session_id}/result
+    Returns {"questions": ..., "response_guideline": ...}.
+    """
+    resp = httpx.get(f"{API_BASE_URL}/sessions/interview-prep/{session_id}/result")
+    resp.raise_for_status()
+    return resp.json()
