@@ -1,34 +1,28 @@
 # AI College Exploration (AICE)
 
-AICE is a multi-agent system to help students explore and apply to universities worldwide. It provides:
+AICE (AI College Exploration) is a multi-agent system designed to assist students in exploring and applying to universities globally. It offers a range of AI-powered tools to streamline the college application process.
 
-- **AI-Powered Essay Writing Assistant**
-  - Structure & outline uploaded personal statements and supplemental essays
-  - Grammar, tone & clarity improvements
-  - Real-time feedback aligned with university expectations
+## Features
 
-- **University Info Retrieval & Program Comparison**
-  - Scrape admissions requirements, deadlines, fees & scholarships
-  - Normalize into a consistent JSON schema
-  - Side-by-side program comparisons on cost, ranking, curriculum & funding
+*   **AI Essay Writing Assistant:** Provides support for crafting compelling personal statements and supplemental essays.
+*   **University Information Retrieval & Program Comparison:** Gathers and compares crucial university program data.
+*   **Cost Breakdown Analysis:** Analyzes the expenses associated with different programs, providing a clear view of potential costs.
+*   **Timeline Planner:** Creates personalized timelines for the application process, ensuring students stay on track with important deadlines.
+*   **Application Checklist Generator:** Generates customized checklists of required documents and tasks for each university a student is applying to.
+*   **Interview Preparation:** Offers interview questions and response guidelines to help students prepare for university interviews.
 
 ## Getting Started
 
-### Prerequisites
-
-- Python 3.10+
-- Streamlit & HTTPX for the frontend
-
 ### Backend Setup
 
-1. **Clone the repo**
+#### 1. Clone the Repository
 
    ```bash
    git clone https://github.com/Gayanukaa/AICE-Backend.git
    cd AICE-Backend
-   ````
+   ```
 
-2. **Install dependencies**
+#### 2. Install Backend Dependencies
 
    ```bash
    pip install -r requirements.txt
@@ -41,7 +35,7 @@ AICE is a multi-agent system to help students explore and apply to universities 
    OPENAI_API_KEY=...
    USE_AZURE_OPENAI=true
    AZURE_OPENAI_DEPLOYMENT_NAME=...
-   AZURE_OPENAI_API_KEY=...
+   AZURE_OPENAI_API_KEY=... 
    OPENAI_API_VERSION=...
    ```
 
@@ -54,7 +48,7 @@ AICE is a multi-agent system to help students explore and apply to universities 
 
    The backend will be available at `http://localhost:8000/docs`.
 
-### Frontend Setup
+#### 1. Install Frontend Dependencies
 
 1. **Install frontend deps**
 
@@ -63,12 +57,12 @@ AICE is a multi-agent system to help students explore and apply to universities 
    pip install -r requirements.txt
    ```
 
-2. **Run the Streamlit app**
+#### 2. Run the Streamlit App
 
    ```bash
    streamlit run streamlit_app.py
    ```
 
-## 📄 License
+## License
 
 This project is licensed under a proprietary license.
