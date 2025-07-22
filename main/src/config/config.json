@@ -1,0 +1,50 @@
+{
+  "essay_brainstorm_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "essay_refinement_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "uni_info_scraper_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "uni_info_processor_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "program_comparison_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "dynamic_checklist_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "cost_breakdown_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "timeline_planner_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "fee_retriever_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "deadline_extractor_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "interview_research_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  },
+  "interview_question_generator_agent": {
+    "model": "gpt-4o",
+    "temperature": 0.5
+  }
+}

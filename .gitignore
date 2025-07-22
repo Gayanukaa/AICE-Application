@@ -10,7 +10,8 @@ __pycache__/
 .pre-commit-config.yaml
 mypy.ini
 .flake8
-
+main/src/data/
+main/src/db/aice_db.json
 
 # Distribution / packaging
 .Python
