@@ -26,7 +26,7 @@ def read_db() -> Dict[str, Any]:
         "timeline_sessions": {},
         "timeline_results": {},
         "interview_prep_sessions": {},
-        "interview_prep_results":{},
+        "interview_prep_results": {},
     }
 
     if not os.path.exists(DB_FILENAME):

@@ -11,9 +11,9 @@ from crew import (
     cost_breakdown_crew,
     create_dynamic_checklist_crew,
     create_essay_writing_crew,
+    create_interview_prep_crew,
     create_program_analysis_crew,
     create_timeline_generator_crew,
-    create_interview_prep_crew
 )
 
 
@@ -249,7 +249,7 @@ def generate_application_planning_background(
                     interview_QA = json.loads(raw) if _is_json(raw) else raw
             db.save_interview_prep(session_id, interview_QA)
             logger.info("Interview preparation data saved to DB")
-            
+
         else:
             raise ValueError(f"Unknown flow_type: {flow}")
 

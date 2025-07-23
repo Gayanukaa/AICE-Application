@@ -13,12 +13,12 @@ from utils.api import (
     get_cost_breakdown_status,
     get_essay_result,
     get_essay_status,
+    get_interview_prep_result,
+    get_interview_prep_status,
     get_program_analysis_result,
     get_program_analysis_status,
     get_timeline_result,
     get_timeline_status,
-    get_interview_prep_status,
-    get_interview_prep_result,
 )
 
 
@@ -405,11 +405,14 @@ def display_interview_prep_results(
         st.info("No interview questions were generated.")
         return
 
-    st.success(f"✅ Generated {len(questions)} interview questions with response guidelines.")
+    st.success(
+        f"✅ Generated {len(questions)} interview questions with response guidelines."
+    )
 
     # Display each question outside the box, guideline inside
     for idx, item in enumerate(questions, start=1):
-        st.markdown(f"""
+        st.markdown(
+            f"""
             <div style="
                 margin-top: 2rem;
                 font-size: 1.1rem;
@@ -417,10 +420,13 @@ def display_interview_prep_results(
             ">
                 Q{idx}: {item['question']}
             </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
         with st.container():
-            st.markdown(f"""
+            st.markdown(
+                f"""
                 <div style="
                     background-color: rgba(70,130,180,0.2);
                     border-radius: 12px;
@@ -436,4 +442,6 @@ def display_interview_prep_results(
                         {item['response_guideline']}
                     </div>
                 </div>
-            """, unsafe_allow_html=True)
+            """,
+                unsafe_allow_html=True,
+            )

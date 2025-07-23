@@ -6,14 +6,14 @@ from config.report_paths import (
     DEADLINES_FILE,
     DYNAMIC_CHECKLIST_FILE,
     ESSAY_OUTLINE_FILE,
+    INTERVIEW_QA_FILE,
+    INTERVIEW_RESEARCH_FILE,
     PROGRAM_COMPARISON_REPORT_FILE,
     RAW_ADMISSIONS_DATA_FILE,
     RAW_FEES_FILE,
     REFINED_ESSAY_FILE,
     STRUCTURED_ADMISSIONS_DATA_FILE,
     TIMELINE_FILE,
-    INTERVIEW_RESEARCH_FILE,
-    INTERVIEW_QA_FILE,
 )
 from crewai import Agent, Task
 from pydantic import BaseModel
@@ -138,17 +138,23 @@ class ApplicationTimeline(BaseModel):
     events: List[TimelineEvent]
     suggestions: List[SuggestedItem]
 
+
 class InterviewResearch(BaseModel):
     """Output model for interview research summary."""
+
     research_summary: str
+
 
 class QAItem(BaseModel):
     question: str
     response_guideline: str
 
+
 class InterviewQA(BaseModel):
     """Output model for interview questions + response guidelines."""
+
     questions: List[QAItem]
+
 
 def create_college_exploration_tasks(
     session_id: str,
@@ -480,7 +486,6 @@ def create_university_planning_tasks(
         tasks.append(t5)
         ctx["timeline"] = t5
 
-    
     # --- Feature 7: Interview Preparation ---
 
     # Task 6: Research university interview expectations
@@ -508,7 +513,7 @@ def create_university_planning_tasks(
         tasks.append(t6)
         ctx["interview_research"] = t6
 
-     # Task 7: Generate realistic interview questions + guidelines
+    # Task 7: Generate realistic interview questions + guidelines
     if "interview_question_generator_agent" in agents and "interview_research" in ctx:
         t7 = Task(
             description=f"""
@@ -536,6 +541,5 @@ def create_university_planning_tasks(
         )
         tasks.append(t7)
         ctx["interview_prep"] = t7
-    
 
     return tasks

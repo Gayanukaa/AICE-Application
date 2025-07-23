@@ -9,14 +9,14 @@ def show_interview_prep_form(user_id: str):
         university_name = st.text_input(
             "Target University",
             placeholder="e.g., UNSW, University of Toronto, NUS",
-            help="Enter the university you are interviewing for."
+            help="Enter the university you are interviewing for.",
         )
 
     with col2:
         course_name = st.text_input(
             "Course Name",
             placeholder="e.g., Computer Science, MBA, Mechanical Engineering",
-            help="Enter the specific course or program."
+            help="Enter the specific course or program.",
         )
 
     program_level = st.selectbox(

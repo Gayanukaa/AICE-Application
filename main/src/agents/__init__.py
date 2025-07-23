@@ -212,7 +212,6 @@ def create_university_planning_agents(
         config, "interview_question_generator_agent", "temperature"
     )
 
-
     def get_llm(model_name: str, temperature: float) -> Union[LLM, ChatOpenAI]:
         if os.getenv("USE_AZURE_OPENAI") == "true":
             return LLM(
@@ -323,7 +322,7 @@ def create_university_planning_agents(
         tools=[SearchTool()],
     )
 
-     # 3a. Interview Research Agent
+    # 3a. Interview Research Agent
     interview_research_agent = Agent(
         role="Interview Research Agent",
         goal=(
@@ -369,5 +368,3 @@ def create_university_planning_agents(
         "interview_research_agent": interview_research_agent,
         "interview_question_generator_agent": interview_question_generator_agent,
     }
-
-    

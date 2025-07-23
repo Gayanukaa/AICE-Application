@@ -52,7 +52,6 @@ def main():
                 title="Interview prep",
                 icon="📝",
             ),
-            
         ]
     )
     pg.run()

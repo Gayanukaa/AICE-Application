@@ -400,6 +400,7 @@ async def sentiment_analysis(payload: SentimentRequest):
 
 # --- Interview preperation (Feature 7) ------------------------------------------
 
+
 @app.post("/sessions/interview-prep")
 def start_interview_prep(payload: Dict[str, Any], background_tasks: BackgroundTasks):
     """
@@ -417,8 +418,13 @@ def start_interview_prep(payload: Dict[str, Any], background_tasks: BackgroundTa
     course_name = payload.get("course_name")
     program_level = payload.get("program_level")
 
-    if not all(isinstance(field, str) for field in [user_id, university_name, course_name, program_level]):
-        raise HTTPException(status_code=400, detail="Missing or invalid required fields")
+    if not all(
+        isinstance(field, str)
+        for field in [user_id, university_name, course_name, program_level]
+    ):
+        raise HTTPException(
+            status_code=400, detail="Missing or invalid required fields"
+        )
 
     session_id = db.create_interview_prep_session(
         user_id, university_name, course_name, program_level

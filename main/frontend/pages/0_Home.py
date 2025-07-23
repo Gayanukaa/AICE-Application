@@ -121,10 +121,10 @@ col7, col8 = st.columns(2)
 with col7:
     st.markdown(
         """
-        #### 🎤 Interview Q&A Preparation  
-        - Generates tailored interview questions  
-        - Highlights key expectations and themes  
-        - Offers structured response guidance  
+        #### 🎤 Interview Q&A Preparation
+        - Generates tailored interview questions
+        - Highlights key expectations and themes
+        - Offers structured response guidance
         """,
         unsafe_allow_html=True,
     )
