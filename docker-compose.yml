@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  # Backend API Service
+  aice-backend:
+    build: .
+    container_name: aice-backend
+    command: ["backend"]
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - USE_AZURE_OPENAI=${USE_AZURE_OPENAI}
+      - AZURE_OPENAI_DEPLOYMENT_NAME=${AZURE_OPENAI_DEPLOYMENT_NAME}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - OPENAI_API_VERSION=${OPENAI_API_VERSION}
+      - SERPER_API_KEY=${SERPER_API_KEY}
+    volumes:
+      - ./main/src/data:/app/main/src/data
+      - ./main/src/db:/app/main/src/db
+    networks:
+      - aice-network
+    restart: unless-stopped
+
+  # Frontend Streamlit Service
+  aice-frontend:
+    build: .
+    container_name: aice-frontend
+    command: ["frontend"]
+    ports:
+      - "8501:8501"
+    depends_on:
+      - aice-backend
+    volumes:
+      - ./main/frontend:/app/main/frontend
+    networks:
+      - aice-network
+    restart: unless-stopped
+    environment:
+      - BACKEND_URL=http://aice-backend:8000
+
+  # Combined service (alternative to running separate services)
+  aice-combined:
+    build: .
+    container_name: aice-combined
+    command: ["both"]
+    ports:
+      - "8000:8000"
+      - "8501:8501"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - USE_AZURE_OPENAI=${USE_AZURE_OPENAI}
+      - AZURE_OPENAI_DEPLOYMENT_NAME=${AZURE_OPENAI_DEPLOYMENT_NAME}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - OPENAI_API_VERSION=${OPENAI_API_VERSION}
+      - SERPER_API_KEY=${SERPER_API_KEY}
+    volumes:
+      - ./main/src/data:/app/main/src/data
+      - ./main/src/db:/app/main/src/db
+      - ./main/frontend:/app/main/frontend
+    networks:
+      - aice-network
+    restart: unless-stopped
+    profiles:
+      - combined
+
+networks:
+  aice-network:
+    driver: bridge
+
+volumes:
+  aice-data:
+  aice-db:
