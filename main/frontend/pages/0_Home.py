@@ -8,7 +8,7 @@ timeline = [
     {"date": "2025-05-01", "event": "Project Kickoff"},
     {"date": "2025-05-10", "event": "Frontend Initiation"},
     {"date": "2025-05-20", "event": "Agent Integration"},
-    {"date": "2025-05-30", "event": "Backend MVP Complete"},
+    {"date": "2025-05-25", "event": "Backend MVP Complete"},
     {"date": "2025-06-01", "event": "Beta Release"},
     {"date": None, "event": "Production Launch (Upcoming)"},
 ]
@@ -44,7 +44,7 @@ st.markdown(
       <span style="font-size:50px;">Exploration</span>
     </h1>
     <p style="text-align:center; font-size:20px; color:#555;">
-      Your AI-powered multi-agent guide through the university application process.
+      Your AI-powered multi-agent guide through the university application process
     </p>
     """,
     unsafe_allow_html=True,
