@@ -3,10 +3,10 @@
 AICE (AI College Exploration) is a multi-agent system designed to assist students in exploring and applying to universities globally. It offers a range of AI-powered tools to streamline the college application process.
 
 <div align="center">
-  
-### AICE Application Demo
 
-[Short walkthrough of the AICE UI and agent flows](main/media/AICE demo.mp4)
+[![Short walkthrough of the AICE UI and agent flows](main/media/thumbnail.png)](main/media/AICE-demo.mp4)
+
+<b>AICE Application Demo</b>
 
 </div>
 
@@ -24,7 +24,7 @@ AICE (AI College Exploration) is a multi-agent system designed to assist student
 ### Docker Setup (Recommended)
 
 **[Complete Docker Setup Guide](DOCKER_README.md)**
->
+
 > Quick start with Docker:
 >
 > ```bash
