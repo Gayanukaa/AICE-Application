@@ -6,7 +6,7 @@ AICE (AI College Exploration) is a multi-agent system designed to assist student
   
 ### AICE Application Demo
 
-[![Short walkthrough of the AICE UI and agent flows](main/media/thumbnail.png)](main/media/AICE demo.mp4)
+[Short walkthrough of the AICE UI and agent flows](main/media/AICE demo.mp4)
 
 </div>
 
